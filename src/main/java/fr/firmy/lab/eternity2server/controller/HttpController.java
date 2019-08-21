@@ -1,0 +1,124 @@
+package fr.firmy.lab.eternity2server.controller;
+
+import fr.firmy.lab.eternity2server.controller.services.JobsService;
+import fr.firmy.lab.eternity2server.controller.services.SolutionsRepository;
+import fr.firmy.lab.eternity2server.model.Action;
+import fr.firmy.lab.eternity2server.model.Job;
+import fr.firmy.lab.eternity2server.model.Solution;
+import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
+import fr.firmy.lab.eternity2server.model.adapter.SolutionAdapter;
+import fr.firmy.lab.eternity2server.model.dto.*;
+import fr.firmy.lab.eternity2server.controller.exception.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/eternity2-server/v1")
+public class HttpController {
+
+    private final JobsService jobsService;
+    private final SolutionsRepository solutionsRepository;
+
+    // adapters
+    private final SolutionAdapter solutionAdapter;
+    private final JobAdapter jobAdapter;
+
+    @Autowired
+    public HttpController(JobsService jobsService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter) {
+        this.jobsService = jobsService;
+        this.solutionsRepository = solutionsRepository;
+        this.solutionAdapter = solutionAdapter;
+        this.jobAdapter = jobAdapter;
+    }
+
+    @GetMapping(value = "/jobs")
+    public List<JobDescription> getJobs(@RequestParam(value="size") Integer jobSize,
+                                        @RequestParam(value="limit", required = false) Integer jobLimit,
+                                        @RequestParam(value="offset", required = false) Integer jobOffset) throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
+
+        return jobsService.getJobsToDo(jobSize, jobLimit, jobOffset).stream()
+                .map( jobAdapter::toDescription )
+                .collect(Collectors.toList());
+    }
+
+    @PutMapping(value = "/result")
+    public void putResult(@RequestBody ResultDescription result) throws ResultSubmissionFailedException, JobUpdateFailedException, JobPruneFailedException {
+
+        if( result.getSolutions() != null ) {
+
+            List<ErrorDescription> errors = new ArrayList<>();
+            List<Solution> solutions = new ArrayList<>();
+
+            for(SolutionDescription description : result.getSolutions()) {
+                try {
+                    solutions.add( solutionAdapter.fromDescription( description ) );
+                } catch (MalformedMaterializedPathException e) {
+                    errors.add( new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Solution description "+description.toString()+" is malformed") );
+                }
+            }
+
+            solutionsRepository.addSolutions(solutions);
+
+            if( ! errors.isEmpty() ) {
+                throw new ResultSubmissionFailedException( errors );
+            }
+
+        } else {
+            throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Solutions are missing in the request")));
+        }
+
+        if( result.getJob() != null ) {
+            jobsService.declareDone( new Job( jobAdapter.fromDescription(result.getJob()), Action.DONE ));
+        } else {
+            throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Job is missing in the request")));
+        }
+    }
+
+    @GetMapping(value = "/solutions")
+    public List<SolutionDescription> getSolutions(@RequestParam(value="limit", required = false) Integer resultsLimit,
+                                                  @RequestParam(value="offset", required = false) Integer resultsOffset) {
+
+        List<SolutionDescription> descriptionList = new ArrayList<>();
+        List<Solution> solutions = solutionsRepository.getSolutions(resultsLimit, resultsOffset);
+        List<ErrorDescription> errors = new ArrayList<>();
+
+        for(Solution solution: solutions) {
+
+            try {
+                descriptionList.add( solutionAdapter.toDescription(solution) );
+            } catch (MalformedBoardDescriptionException e) {
+                errors.add( new ErrorDescription(HttpStatus.INTERNAL_SERVER_ERROR, "/solutions", "Unable to build a solution description for "+solution.toString()+".") );
+            }
+        }
+
+        return descriptionList;
+    }
+
+    @PutMapping(value = "/status")
+    public void putStatus(@RequestBody StatusDescription status) throws JobUpdateFailedException {
+
+        if( status.getStatus().equalsIgnoreCase(Action.PENDING.name() ) ) {
+            jobsService.declarePending( new Job( jobAdapter.fromDescription(status.getJob()), Action.PENDING ) );
+        } else {
+            Optional<ErrorDescription> error;
+            if( status.getStatus().equalsIgnoreCase(Action.GO.name() ) ) {
+                error = Optional.of(new ErrorDescription(HttpStatus.FORBIDDEN, status.getJob().getJob().getRepresentation(), "Impossible to declare new Jobs to do"));
+            } else {
+                if (status.getStatus().equalsIgnoreCase(Action.DONE.name())) {
+                    error = Optional.of(new ErrorDescription(HttpStatus.FORBIDDEN, status.getJob().getJob().getRepresentation(), "Please use the /result endpoint to declare finished jobs"));
+                }
+                else {
+                    error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "Unknown status. Accepted status: PENDING."));
+                }
+            }
+            throw new JobUpdateFailedException(error.get());
+        }
+    }
+
+
+}
