@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class BoardPath {
 
     private static Logger LOGGER = LoggerFactory.getLogger( BoardPath.class.getName() );
-    private LinkedList<Coordinates> path;
+    private List<Coordinates> path;
     private int width;
 
     @Autowired
@@ -28,7 +28,7 @@ public class BoardPath {
 
     private void fillPath() {
         int N = this.width - 1;
-        this.path = new LinkedList<>();
+        this.path = new ArrayList<>(this.width * this.width);
 
         this.path.add(new Coordinates(0,0));
         this.path.add(new Coordinates(0, N));
@@ -61,28 +61,28 @@ public class BoardPath {
             IntStream.range( 0, ringBorderSize ).mapToObj(dy->new Coordinates(origin.x, origin.y - dy)).forEach(path::add);
         }
 
-        Coordinates next = path.removeLast();
+        Coordinates next = path.remove(path.size()-1);
 
-        LOGGER.info(origin.toString() + "-> "+direction.name()+"["+ringBorderSize+"]:"+this.toString());
+        LOGGER.debug(origin.toString() + "-> "+direction.name()+"["+ringBorderSize+"]:"+this.toString());
 
         return next;
     }
 
     private void fillRing0(int N) {
-        LOGGER.info("Ring 0");
+        LOGGER.debug("Ring 0");
         this.fillRingBorder( new Coordinates( 1, 0 ), N, Direction.EAST);
         this.fillRingBorder( new Coordinates( N, 1 ), N, Direction.SOUTH);
         this.fillRingBorder( new Coordinates( N-1, N ), N, Direction.WEST);
         this.fillRingBorder( new Coordinates( 0, N-1 ), N, Direction.NORTH);
     }
 
-    private void fillLastPiece(int ringIdx, LinkedList<Coordinates> path) {
+    private void fillLastPiece(int ringIdx, List<Coordinates> path) {
         path.add( new Coordinates( ringIdx, ringIdx ) );
     }
 
     private void fillRing(int ringIdx, int N) {
         int ringBorderSize = N - (2 * ringIdx) + 1 ;
-        LOGGER.info("Ring "+ringIdx+" ringBorderSize="+ringBorderSize);
+        LOGGER.debug("Ring "+ringIdx+" ringBorderSize="+ringBorderSize);
         if( ringBorderSize > 1 ) {
             this.fillRingBorder(
                 this.fillRingBorder(

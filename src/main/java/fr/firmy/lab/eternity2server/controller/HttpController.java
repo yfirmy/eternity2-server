@@ -47,7 +47,7 @@ public class HttpController {
     }
 
     @PutMapping(value = "/result")
-    public void putResult(@RequestBody ResultDescription result) throws ResultSubmissionFailedException, JobUpdateFailedException, JobPruneFailedException {
+    public void putResult(@RequestBody ResultDescription result) throws ResultSubmissionFailedException {
 
         if( result.getSolutions() != null ) {
 
@@ -57,7 +57,7 @@ public class HttpController {
             for(SolutionDescription description : result.getSolutions()) {
                 try {
                     solutions.add( solutionAdapter.fromDescription( description ) );
-                } catch (MalformedMaterializedPathException e) {
+                } catch (MalformedSolutionDescriptionException e) {
                     errors.add( new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Solution description "+description.toString()+" is malformed") );
                 }
             }
@@ -73,7 +73,15 @@ public class HttpController {
         }
 
         if( result.getJob() != null ) {
-            jobsService.declareDone( new Job( jobAdapter.fromDescription(result.getJob()), Action.DONE ));
+            try {
+                jobsService.declareDone( new Job( jobAdapter.fromDescription(result.getJob()), Action.DONE ));
+            } catch (JobUpdateFailedException e) {
+                throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, result.getJob().getJob().getRepresentation(), "Impossible to update job")), e);
+            } catch( JobPruneFailedException e) {
+                throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.INTERNAL_SERVER_ERROR, result.getJob().getJob().getRepresentation(), "Impossible to prune branches after job update")), e);
+            } catch ( MalformedJobDescriptionException e) {
+                throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, result.getJob().getJob().getRepresentation(), "Impossible to update job: Job is malformed in the request")), e);
+            }
         } else {
             throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Job is missing in the request")));
         }
@@ -83,29 +91,25 @@ public class HttpController {
     public List<SolutionDescription> getSolutions(@RequestParam(value="limit", required = false) Integer resultsLimit,
                                                   @RequestParam(value="offset", required = false) Integer resultsOffset) {
 
-        List<SolutionDescription> descriptionList = new ArrayList<>();
         List<Solution> solutions = solutionsRepository.getSolutions(resultsLimit, resultsOffset);
-        List<ErrorDescription> errors = new ArrayList<>();
 
-        for(Solution solution: solutions) {
-
-            try {
-                descriptionList.add( solutionAdapter.toDescription(solution) );
-            } catch (MalformedBoardDescriptionException e) {
-                errors.add( new ErrorDescription(HttpStatus.INTERNAL_SERVER_ERROR, "/solutions", "Unable to build a solution description for "+solution.toString()+".") );
-            }
-        }
-
-        return descriptionList;
+        return solutions.stream().map(solutionAdapter::toDescription).collect(Collectors.toList());
     }
 
     @PutMapping(value = "/status")
     public void putStatus(@RequestBody StatusDescription status) throws JobUpdateFailedException {
 
+        Optional<ErrorDescription> error = Optional.empty();
         if( status.getStatus().equalsIgnoreCase(Action.PENDING.name() ) ) {
-            jobsService.declarePending( new Job( jobAdapter.fromDescription(status.getJob()), Action.PENDING ) );
+
+            try {
+                jobsService.declarePending(new Job(jobAdapter.fromDescription(status.getJob()), Action.PENDING));
+            } catch( MalformedJobDescriptionException  e) {
+                error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "The given job is malformed in the request"));
+            }
+
         } else {
-            Optional<ErrorDescription> error;
+
             if( status.getStatus().equalsIgnoreCase(Action.GO.name() ) ) {
                 error = Optional.of(new ErrorDescription(HttpStatus.FORBIDDEN, status.getJob().getJob().getRepresentation(), "Impossible to declare new Jobs to do"));
             } else {
@@ -116,6 +120,9 @@ public class HttpController {
                     error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "Unknown status. Accepted status: PENDING."));
                 }
             }
+        }
+
+        if( error.isPresent() ) {
             throw new JobUpdateFailedException(error.get());
         }
     }

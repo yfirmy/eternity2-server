@@ -6,17 +6,19 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.firmy.lab.eternity2server.model.dto.BoardDescription;
+import fr.firmy.lab.eternity2server.model.dto.JobDescription;
 import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 
 @JsonComponent
-public class BoardDescriptionDeserializer extends JsonDeserializer<BoardDescription> {
+public class JobDescriptionDeserializer extends JsonDeserializer<JobDescription> {
 
     @Override
-    public BoardDescription deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public JobDescription deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectCodec codec = jsonParser.getCodec();
         JsonNode node = codec.readTree(jsonParser);
-        return new BoardDescription(node.asText());
+        String description = node.get("job").asText();
+        return new JobDescription(new BoardDescription(description));
     }
 }

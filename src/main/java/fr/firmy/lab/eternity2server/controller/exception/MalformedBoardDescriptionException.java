@@ -9,4 +9,9 @@ public class MalformedBoardDescriptionException extends AbstractSingleErrorExcep
         super("The given board description ("+malformedBoardDescription+") is malformed",
                 new ErrorDescription(HttpStatus.BAD_REQUEST, malformedBoardDescription, "The given board description is malformed"));
     }
+
+    public MalformedBoardDescriptionException(String malformedBoardDescription, Throwable cause) {
+        super("The given board description ("+malformedBoardDescription+") is malformed",
+                new ErrorDescription(HttpStatus.BAD_REQUEST, malformedBoardDescription, "The given board description is malformed"), cause);
+    }
 }

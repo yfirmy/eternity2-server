@@ -3,8 +3,8 @@ package fr.firmy.lab.eternity2server.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
-import fr.firmy.lab.eternity2server.controller.exception.MalformedBoardDescriptionException;
-import fr.firmy.lab.eternity2server.controller.exception.MalformedMaterializedPathException;
+import fr.firmy.lab.eternity2server.controller.exception.MalformedJobDescriptionException;
+import fr.firmy.lab.eternity2server.controller.exception.MalformedSolutionDescriptionException;
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.Solution;
@@ -45,40 +45,27 @@ public class TestDataHelper {
     }
 
     public JobDescription buildJobDescription(String description) {
-        BoardDescription boardDescription = null;
-        try {
-            boardDescription = new BoardDescription(description, boardSize);
-        } catch (MalformedBoardDescriptionException e) {
-            // should not happen in context of test data initialization
-        }
-        return new JobDescription(boardDescription);
+        return new JobDescription(new BoardDescription(description));
     }
 
-    public StatusDescription buildStatusDescription(String job, String status, Date dateJobTransmission, Date dateResult) throws MalformedBoardDescriptionException {
-        return new StatusDescription( new JobDescription(new BoardDescription(job, boardSize)), status, dateJobTransmission, dateResult );
+    public StatusDescription buildStatusDescription(String job, String status, Date dateJobTransmission, Date dateResult) {
+        return new StatusDescription( new JobDescription(new BoardDescription(job)), status, dateJobTransmission, dateResult );
     }
 
-    public ResultDescription buildResultDescription(String job, List<String> results, Date dateJobTransmission, Date dateResult) throws MalformedBoardDescriptionException {
+    public ResultDescription buildResultDescription(String job, List<String> results, Date dateJobTransmission, Date dateResult) {
         List<SolutionDescription> descriptions = null;
         if( results != null ) {
             descriptions = new ArrayList<>();
             for (String result : results) {
-                descriptions.add(new SolutionDescription(new BoardDescription(result, boardSize), new Date()));
+                descriptions.add(new SolutionDescription(new BoardDescription(result), new Date()));
             }
         }
-        return new ResultDescription( new JobDescription(new BoardDescription(job, boardSize)), descriptions, dateJobTransmission );
+        return new ResultDescription( new JobDescription(new BoardDescription(job)), descriptions, dateJobTransmission );
     }
 
 
     public BoardDescription buildBoardDescription(String description) {
-        BoardDescription boardDescription = null;
-        try {
-            boardDescription = new BoardDescription( description, boardSize );
-        }
-        catch(MalformedBoardDescriptionException e) {
-            // should not happen in context of test data initialization
-        }
-        return boardDescription;
+        return new BoardDescription( description );
     }
 
     public Solution buildSolution(String boardDescription) {
@@ -89,14 +76,20 @@ public class TestDataHelper {
                             buildBoardDescription(boardDescription),
                             new Date() )
             );
-        } catch (MalformedMaterializedPathException e) {
+        } catch (MalformedSolutionDescriptionException e) {
             // should not happen in context of test data initialization
         }
         return solution;
     }
 
     public Job buildJob(String boardDescription, Action action) {
-        return jobAdapter.fromDescription( new JobDescription(buildBoardDescription(boardDescription)), action );
+        Job job = null;
+        try {
+            job = jobAdapter.fromDescription( new JobDescription(buildBoardDescription(boardDescription)), action );
+        } catch(MalformedJobDescriptionException e) {
+            // should not happen in context of test data initialization
+        }
+        return job;
     }
 
     public Job buildJob(String boardDescription) {

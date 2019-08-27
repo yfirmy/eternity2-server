@@ -10,4 +10,8 @@ public class ResultSubmissionFailedException extends AbstractMultipleErrorsExcep
         super("Impossible to submit the given results", errors);
     }
 
+    public ResultSubmissionFailedException(List<ErrorDescription> errors, Throwable cause) {
+        super("Impossible to submit the given results", errors, cause);
+    }
+
 }

@@ -1,5 +1,7 @@
 package fr.firmy.lab.eternity2server.model.adapter;
 
+import fr.firmy.lab.eternity2server.controller.exception.MalformedBoardDescriptionException;
+import fr.firmy.lab.eternity2server.controller.exception.MalformedJobDescriptionException;
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.dto.JobDescription;
@@ -20,11 +22,17 @@ public class JobAdapter {
         return new JobDescription(boardAdapter.toDescription(job.getBoard()));
     }
 
-    public Job fromDescription(JobDescription jobDescription, Action action) {
-        return new Job(boardAdapter.fromDescription( jobDescription.getJob() ), action);
+    public Job fromDescription(JobDescription jobDescription, Action action) throws MalformedJobDescriptionException {
+        Job result;
+        try {
+            result = new Job(boardAdapter.fromDescription( jobDescription.getJob() ), action);
+        } catch (MalformedBoardDescriptionException e) {
+            throw new MalformedJobDescriptionException( jobDescription, e);
+        }
+        return result;
     }
 
-    public Job fromDescription(JobDescription jobDescription) {
+    public Job fromDescription(JobDescription jobDescription) throws MalformedJobDescriptionException {
         return this.fromDescription(jobDescription, Action.GO);
     }
 

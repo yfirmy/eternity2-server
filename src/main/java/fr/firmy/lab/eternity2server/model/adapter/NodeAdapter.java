@@ -1,5 +1,6 @@
 package fr.firmy.lab.eternity2server.model.adapter;
 
+import fr.firmy.lab.eternity2server.controller.exception.MalformedBoardDescriptionException;
 import fr.firmy.lab.eternity2server.controller.exception.MalformedMaterializedPathException;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.MaterializedPath;
@@ -32,8 +33,8 @@ public class NodeAdapter {
         try {
             MaterializedPath materializedPath = materializedPathAdapter.fromBoardDescription(boardDescription);
             node = new Node(materializedPath, job.getAction());
-        } catch (MalformedMaterializedPathException e) {
-            LOGGER.error("Should not happen", e);
+        } catch (MalformedBoardDescriptionException e) {
+            LOGGER.error("Job description is malformed (Should not happen)", e);
         }
         return node;
     }

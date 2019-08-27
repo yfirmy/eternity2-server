@@ -1,6 +1,7 @@
 package fr.firmy.lab.eternity2server.controller.services;
 
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
+import fr.firmy.lab.eternity2server.controller.exception.MalformedJobDescriptionException;
 import fr.firmy.lab.eternity2server.controller.exception.SolverResultException;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.MaterializedPath;
@@ -18,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,24 +62,40 @@ public class SubJobsService {
     }
 
     private List<Job> verifyResponse(ResponseEntity<List<JobDescription>> response, Job job) throws SolverResultException {
+
+        List<Job> result = new ArrayList<>();
+        List<ErrorDescription> errors = new ArrayList<>();
+
         if( response.getBody() != null ) {
-            return verifyResults(response.getBody(), job);
+            result.addAll( verifyResults(response.getBody(), job, errors ));
         } else {
-            List<ErrorDescription> errors = Collections.singletonList( new ErrorDescription(INTERNAL_SERVER_ERROR, job.toString(), "The sub-jobs call returned an empty body") );
+            errors.add( new ErrorDescription(INTERNAL_SERVER_ERROR, job.toString(), "The sub-jobs call returned an empty body") );
+        }
+        if( !errors.isEmpty() ) {
             throw new SolverResultException(errors);
         }
+        return result;
     }
 
-    private List<Job> verifyResults(List<JobDescription> results, Job startingPoint) throws SolverResultException {
+    private List<Job> verifyResults(List<JobDescription> results, Job startingPoint, List<ErrorDescription> errors) {
 
-        List<Job> jobs = results.stream().map(jobAdapter::fromDescription).collect(Collectors.toList());
+        List<Job> jobs = new ArrayList<>();
 
-        verifyCommonParent(jobs, startingPoint);
+        for( JobDescription result : results ) {
+            try {
+                jobs.add( jobAdapter.fromDescription( result ) );
+            }
+            catch(MalformedJobDescriptionException e) {
+                errors.add( new ErrorDescription(INTERNAL_SERVER_ERROR, result.toString(), "Failed to convert a Job Description" ));
+            }
+        }
+
+        verifyCommonParent(jobs, startingPoint, errors);
 
         return jobs;
     }
 
-    private void verifyCommonParent(List<Job> jobs, Job startingPoint) throws SolverResultException {
+    private void verifyCommonParent(List<Job> jobs, Job startingPoint, List<ErrorDescription> errors) {
 
         MaterializedPath parent = nodeAdapter.fromJob(startingPoint).getPath();
 
@@ -88,10 +105,9 @@ public class SubJobsService {
 
         if( !childrenNodes.isEmpty() && childrenNodes.containsKey(Boolean.FALSE) && !childrenNodes.get(Boolean.FALSE).isEmpty() ) {
 
-            List<ErrorDescription> errors = childrenNodes.get(Boolean.FALSE).stream()
+            errors.addAll(childrenNodes.get(Boolean.FALSE).stream()
                     .map(node -> new ErrorDescription(INTERNAL_SERVER_ERROR, node.getPath().toString(), "The returned result is not a child of the initial job"))
-                    .collect(Collectors.toList());
-            throw new SolverResultException(errors);
+                    .collect(Collectors.toList()) );
         }
     }
 
