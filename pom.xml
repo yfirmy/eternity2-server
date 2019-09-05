@@ -10,7 +10,7 @@
     </parent>
     <groupId>fr.firmy.lab</groupId>
     <artifactId>eternity2-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>eternity2-server</name>
     <description>Eternity II Server</description>
 
