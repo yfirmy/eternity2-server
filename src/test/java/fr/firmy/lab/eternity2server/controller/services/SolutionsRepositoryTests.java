@@ -54,7 +54,7 @@ public class SolutionsRepositoryTests {
     @Test
     public void test_addResults_nominal() throws ResultSubmissionFailedException {
 
-        addSolution("$9W:5W:7E:2N:1W:4S:8S:3E:6N:;");
+        addSolution("$9W:5W:8S:2N:1W:4S:7E:3E:6N:;");
 
         List<String> solutions = solutionsRepository.getSolutions(null, null)
                 .stream()
@@ -70,7 +70,7 @@ public class SolutionsRepositoryTests {
     public void test_addResults_error_rewrite_1() throws ResultSubmissionFailedException {
 
         try {
-            addSolution("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            addSolution("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         }
         catch(Exception e) {
 
@@ -90,10 +90,10 @@ public class SolutionsRepositoryTests {
     @Test( expected = ResultSubmissionFailedException.class )
     public void test_addResults_error_rewrite_2() throws ResultSubmissionFailedException {
 
-        addSolution("$9W:5W:7E:2N:1W:4S:8S:3E:6N:;");
+        addSolution("$9W:5W:8S:2N:1W:4S:7E:3E:6N:;");
 
         try {
-            addSolution("$9W:5W:7E:2N:1W:4S:8S:3E:6N:;");
+            addSolution("$9W:5W:8S:2N:1W:4S:7E:3E:6N:;");
         }
         catch(Exception e) {
 

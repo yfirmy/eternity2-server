@@ -31,8 +31,8 @@ public class BoardPath {
         this.path = new ArrayList<>(this.width * this.width);
 
         this.path.add(new Coordinates(0,0));
-        this.path.add(new Coordinates(0, N));
         this.path.add(new Coordinates( N,0));
+        this.path.add(new Coordinates(0, N));
         this.path.add(new Coordinates( N, N));
 
         // ring 0

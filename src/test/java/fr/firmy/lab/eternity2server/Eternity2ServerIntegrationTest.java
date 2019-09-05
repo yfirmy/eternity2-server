@@ -55,6 +55,8 @@ public class Eternity2ServerIntegrationTest {
 
     private static final String API_ETERNITY2_GET_SOLUTIONS = API_ETERNITY2 + "/solutions";
 
+    private static final String API_ETERNITY2_PUT_STATUS = API_ETERNITY2 + "/status";
+
     @Autowired
     private MockMvc mvc;
 
@@ -187,6 +189,15 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(jsonPath("$[2].job", is("$213S:.:.:.:.:.:.:.:.:;")))
                 .andExpect(jsonPath("$[3].job", is("$215N:.:.:.:.:.:.:.:.:;")));
 
+        // root must have been removed in that case
+        mvc.perform(get(API_ETERNITY2_GET_JOBS)
+                .param("size", "9")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+
         mockServer.verify();
     }
 
@@ -202,8 +213,8 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:300N:.:.:;")))
-                .andExpect(jsonPath("$[1].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")))
+                .andExpect(jsonPath("$[1].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         mockServer.verify();
     }
@@ -220,8 +231,8 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:300N:.:.:;")))
-                .andExpect(jsonPath("$[1].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")))
+                .andExpect(jsonPath("$[1].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         mockServer.verify();
 
@@ -232,15 +243,15 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:300N:.:.:;")))
-                .andExpect(jsonPath("$[1].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")))
+                .andExpect(jsonPath("$[1].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         mockServer.verify();
     }
 
 
 
-        @Test
+    @Test
     public void get_jobs_nominal_with_pagination_1_1() throws Exception {
 
         this.setUpMock(1, 1,1, 0);
@@ -254,7 +265,7 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
 
         mockServer.verify();
@@ -273,7 +284,7 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:300N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")));
 
         mockServer.verify();
     }
@@ -291,7 +302,7 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         mockServer.verify();
     }
@@ -303,7 +314,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -324,14 +335,14 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:300N:.:.:;")))
-                .andExpect(jsonPath("$[1].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")))
+                .andExpect(jsonPath("$[1].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         // WHEN : submitting empty results for one job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$212W:.:.:.:.:.:300N:.:.:;\" }, \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$212W:.:300N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -344,13 +355,13 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].job", is("$212W:.:.:.:.:.:400N:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
         // AND WHEN : submitting empty results for the second job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$212W:.:.:.:.:.:400N:.:.:;\" }, \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -363,8 +374,8 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].job", is("$213S:.:.:.:.:.:201N:.:.:;")))
-                .andExpect(jsonPath("$[1].job", is("$213S:.:.:.:.:.:202W:.:.:;")));
+                .andExpect(jsonPath("$[0].job", is("$213S:.:201N:.:.:.:.:.:.:;")))
+                .andExpect(jsonPath("$[1].job", is("$213S:.:202W:.:.:.:.:.:.:;")));
 
         mockServer.verify();
     }
@@ -376,7 +387,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -390,7 +401,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -405,7 +416,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"215N.203S.8S.7E.6N.5W.4S.3E.2N.1W\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"215N.203S.8S.7E.6N.5W.4S.3E.2N.1W\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -420,7 +431,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$215N:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$215N:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -450,7 +461,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" } }"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\" }"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -480,7 +491,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \".:.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \".:.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -494,7 +505,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -508,7 +519,7 @@ public class Eternity2ServerIntegrationTest {
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": { \"job\": \"$.:.:.:.:.:.:.:.:.:;\" }, \"solutions\": [ { \"solution\": \"$1N:5N:3S:8E:9N:6W:2W:7S:4E:;\", \"dateSolved\": \"\"}, {\"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\"} ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$1N:5N:3S:8E:9N:6W:2W:7S:4E:;\", \"dateSolved\": \"\"}, {\"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\"} ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -522,6 +533,20 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(jsonPath("$[1].solution", is("$215N:203S:7E:6N:5W:4S:3E:2N:1W:;")))
         ;
 
+
+        mockServer.verify();
+    }
+
+    @Test
+    public void put_status_nominal() throws Exception {
+
+        this.setUpMock(0, 0,0, 0);
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mockServer.verify();
     }

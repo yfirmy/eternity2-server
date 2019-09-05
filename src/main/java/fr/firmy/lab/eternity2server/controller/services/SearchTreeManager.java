@@ -23,8 +23,11 @@ public class SearchTreeManager {
 
     private static Logger LOGGER = LoggerFactory.getLogger( SearchTreeManager.class.getName() );
 
-    private static final String selectNodesRequest =
+    private static final String selectMatchingNodesRequest  =
             "SELECT path FROM search.tree WHERE path ~ ?::lquery AND tag = ?::search.action ORDER BY path ASC";
+
+    private static final String selectExactNodesRequest  =
+            "SELECT path FROM search.tree WHERE path = ?::ltree AND tag = ?::search.action ORDER BY path ASC";
 
     private static final String selectAllNodesRequest =
             "SELECT path, tag FROM search.tree WHERE path ~ ?::lquery ORDER BY path ASC";
@@ -59,7 +62,7 @@ public class SearchTreeManager {
     private List<MaterializedPath> getPaths(String lquery, Action tag, Integer limit, Integer offset) {
         String limitOption = limit!=null ? " LIMIT "+limit : "";
         String offsetOption = offset!=null ? " OFFSET "+offset : "";
-        String selectQuery = selectNodesRequest + limitOption + offsetOption;
+        String selectQuery = ( lquery.isEmpty() ? selectExactNodesRequest : selectMatchingNodesRequest ) + limitOption + offsetOption;
         return jdbcTemplate.query(selectQuery, rs -> {
             List<MaterializedPath> result0 = new ArrayList<>();
             while (rs.next()) {
@@ -99,6 +102,9 @@ public class SearchTreeManager {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addPath(Node node) throws MaterializedPathAddFailedException {
+
+        LOGGER.debug("Adding "+node.toString());
+
         try {
             jdbcTemplate.update(insertNodeRequest, node.getPath().toString(), node.getTag().name());
         } catch(Exception e) {
@@ -108,6 +114,9 @@ public class SearchTreeManager {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void removePath(Node node) throws MaterializedPathRemoveFailedException {
+
+        LOGGER.debug("Removing "+node.toString());
+
         try {
             int count = jdbcTemplate.update(removeNodeRequest, node.getPath().toString(), node.getTag().name());
             if( count == 0 ) {
@@ -120,6 +129,8 @@ public class SearchTreeManager {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateTag(Node node, Action newTag) throws MaterializedPathUpdateFailedException {
+
+        LOGGER.info("Setting tag "+newTag+ " to "+node.toString());
 
         try {
             int count = jdbcTemplate.update(updateNodeStatus, newTag.name(), node.getPath().toString());
@@ -158,6 +169,8 @@ public class SearchTreeManager {
     @Transactional
     public void replacePath(List<Node> listToRemove, List<Node> listToAdd) throws MaterializedPathReplaceFailedException {
 
+        LOGGER.info("Replacing "+listToRemove.stream().map(Node::toString).collect(Collectors.joining(", "))+" by "+listToAdd.stream().map(Node::toString).collect(Collectors.joining(", ")));
+
         List<ErrorDescription> errors = new ArrayList<>();
 
         for( Node pathToRemove : listToRemove ) {
@@ -165,18 +178,14 @@ public class SearchTreeManager {
             try {
                 if (!listToAdd.contains(pathToRemove)) {
 
-                    if( ! pathToRemove.isRoot() ) {
-                        if (this.existsPath(pathToRemove)) {
-                            try {
-                                this.removePath(pathToRemove);
-                            } catch (MaterializedPathRemoveFailedException e) {
-                                addError(errors, INTERNAL_SERVER_ERROR, pathToRemove.toString(), "the removal of the given path has failed: " + e.getMessage());
-                            }
-                        } else {
-                            addError(errors, BAD_REQUEST, pathToRemove.toString(), "the given job does not exist");
+                    if (this.existsPath(pathToRemove)) {
+                        try {
+                            this.removePath(pathToRemove);
+                        } catch (MaterializedPathRemoveFailedException e) {
+                            addError(errors, INTERNAL_SERVER_ERROR, pathToRemove.toString(), "the removal of the given path has failed: " + e.getMessage());
                         }
                     } else {
-                        LOGGER.debug("Requested removal of root node, not actually feasible, as the root Materialized Path is not represented in the tree");
+                        addError(errors, BAD_REQUEST, pathToRemove.toString(), "the given job does not exist");
                     }
                 } else {
                     addError(errors, BAD_REQUEST, pathToRemove.toString(), "it is also present in the requested paths to be inserted");

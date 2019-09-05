@@ -81,11 +81,11 @@ public class JobsServiceTests {
         }
 
         List<Job> doneJobs6 = jobsService.getDoneJobs(6);
-        assertThat(jobAdapter.toDescription(doneJobs6.get(0)).getJob().getRepresentation()).as("Description of found done job of size 6").isEqualTo("$215N:.:700E:.:.:.:200N:.:.:;");
+        assertThat(jobAdapter.toDescription(doneJobs6.get(0)).getJob().getRepresentation()).as("Description of found done job of size 6").isEqualTo("$215N:.:200N:.:.:.:700E:.:.:;");
         assertThat(doneJobs6.size()).as("Done getJobs of size 6").isEqualTo(1);
 
         List<Job> doneJobs7 = jobsService.getDoneJobs(7);
-        assertThat(jobAdapter.toDescription(doneJobs7.get(0)).getJob().getRepresentation()).as("Description of found done job of size 7").isEqualTo("$213S:.:.:.:.:.:202W:.:.:;");
+        assertThat(jobAdapter.toDescription(doneJobs7.get(0)).getJob().getRepresentation()).as("Description of found done job of size 7").isEqualTo("$213S:.:202W:.:.:.:.:.:.:;");
         assertThat(doneJobs7.size()).as("Done getJobs of size 7").isEqualTo(1);
 
         List<Job> doneJobs8 = jobsService.getDoneJobs(8);
@@ -102,7 +102,7 @@ public class JobsServiceTests {
         }
 
         List<Job> doneJobs6 = jobsService.getPendingJobs(6);
-        assertThat(jobAdapter.toDescription(doneJobs6.get(0)).getJob().getRepresentation()).as("Description of found pending job of size 6").isEqualTo("$215N:.:800E:.:.:.:200N:.:.:;");
+        assertThat(jobAdapter.toDescription(doneJobs6.get(0)).getJob().getRepresentation()).as("Description of found pending job of size 6").isEqualTo("$215N:.:200N:.:.:.:800E:.:.:;");
         assertThat(doneJobs6.size()).as("Pending getJobs of size 6").isEqualTo(1);
 
         for( int i=7; i<=8; i++) {
@@ -141,8 +141,8 @@ public class JobsServiceTests {
         }
 
         List<String> doneJobDescriptions7 = getJobsToDo_NoDevelop(7);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 8").isEqualTo(2);
 
         List<String> doneJobDescriptions8 = getJobsToDo_NoDevelop(8);
@@ -159,8 +159,8 @@ public class JobsServiceTests {
         }
 
         List<String> doneJobDescriptions7 = getJobsToDo_NoDevelop(7, 2, null);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         List<String> doneJobDescriptions8 = getJobsToDo_NoDevelop(8);
@@ -177,8 +177,8 @@ public class JobsServiceTests {
         }
 
         List<String> doneJobDescriptions7 = getJobsToDo_NoDevelop(7, 2, 0);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         List<String> doneJobDescriptions8 = getJobsToDo_NoDevelop(8);
@@ -195,8 +195,8 @@ public class JobsServiceTests {
         }
 
         List<String> doneJobDescriptions7 = getJobsToDo_NoDevelop(7, 2, 1);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         List<String> doneJobDescriptions8 = getJobsToDo_NoDevelop(8);
@@ -213,8 +213,8 @@ public class JobsServiceTests {
         }
 
         List<String> doneJobDescriptions7 = getJobsToDo_NoDevelop(7, 1, 1);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         List<String> doneJobDescriptions8 = getJobsToDo_NoDevelop(8);
@@ -244,8 +244,8 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+                "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         // Size 8 : no branch development necessary
         List<String> doneJobDescriptions8 = getJobsToDo(8);
@@ -254,14 +254,14 @@ public class JobsServiceTests {
 
         // Size 7 : no branch development necessary
         List<String> doneJobDescriptions7 = getJobsToDo(7);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         // Size 6 : branch development is triggered
         List<String> doneJobDescriptions6 = getJobsToDo(6);
-        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 6").contains("$213S:.:400E:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 6").contains("$213S:.:500W:.:.:.:201N:.:.:;");
+        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 6").contains("$213S:.:201N:.:.:.:400E:.:.:;");
+        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 6").contains("$213S:.:201N:.:.:.:500W:.:.:;");
         assertThat(doneJobDescriptions6.size()).as("Jobs to do of size 6").isEqualTo(2);
 
         mockServer.verify();
@@ -273,18 +273,18 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+                "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:400E:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:600W:;", "$213S:.:400E:.:.:.:201N:.:700W:;", "$213S:.:400E:.:.:.:201N:.:800W:;"));
+                "$213S:.:201N:.:.:.:400E:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:600W:;", "$213S:.:201N:.:.:.:400E:.:700W:;", "$213S:.:201N:.:.:.:400E:.:800W:;"));
 
         // Size 6 : branch development is triggered
         List<String> doneJobDescriptions5 = getJobsToDo(5);
-        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:600W:;");
-        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:700W:;");
-        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:800W:;");
+        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:600W:;");
+        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:700W:;");
+        assertThat(doneJobDescriptions5).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:800W:;");
         assertThat(doneJobDescriptions5.size()).as("Jobs to do of size 5").isEqualTo(3);
 
         mockServer.verify();
@@ -296,40 +296,40 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+                "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:400E:.:.:.:201N:.:.:;",
+                "$213S:.:201N:.:.:.:400E:.:.:;",
                 Collections.emptyList());
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:500W:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:500W:.:.:.:201N:.:600S:;", "$213S:.:500W:.:.:.:201N:.:700S:;") );
+                "$213S:.:201N:.:.:.:500W:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:500W:.:600S:;", "$213S:.:201N:.:.:.:500W:.:700S:;") );
 
         // Size 6 : branch development is triggered, first meeting a dead end, then finding
         List<String> jobsTodoDescriptions5 = getJobsToDo(5);
-        assertThat(jobsTodoDescriptions5).as("Developed Jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:600S:;");
-        assertThat(jobsTodoDescriptions5).as("Developed Jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:700S:;");
+        assertThat(jobsTodoDescriptions5).as("Developed Jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:600S:;");
+        assertThat(jobsTodoDescriptions5).as("Developed Jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:700S:;");
         assertThat(jobsTodoDescriptions5.size()).as("Developed Jobs to do of size 5").isEqualTo(2);
 
         // Size 6 again : won't try to develop branch
         List<String> jobsTodoDescriptions5_again = getJobsToDo(5);
-        assertThat(jobsTodoDescriptions5_again).as("Retrieved jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:600S:;");
-        assertThat(jobsTodoDescriptions5_again).as("Retrieved jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:700S:;");
+        assertThat(jobsTodoDescriptions5_again).as("Retrieved jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:600S:;");
+        assertThat(jobsTodoDescriptions5_again).as("Retrieved jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:700S:;");
         assertThat(jobsTodoDescriptions5_again.size()).as("Retrieved Jobs to do of size 5").isEqualTo(2);
 
         // Jobs done of size 6 contains $213S:201N:400E:.:.:.:.:.:.:;
         List<String> doneJobs6 = getDoneJobs(6);
-        assertThat(doneJobs6).as("Description of done Jobs of size 6").contains("$213S:.:400E:.:.:.:201N:.:.:;");
-        assertThat(doneJobs6).as("Description of done Jobs of size 6").contains("$215N:.:700E:.:.:.:200N:.:.:;");
+        assertThat(doneJobs6).as("Description of done Jobs of size 6").contains("$213S:.:201N:.:.:.:400E:.:.:;");
+        assertThat(doneJobs6).as("Description of done Jobs of size 6").contains("$215N:.:200N:.:.:.:700E:.:.:;");
         assertThat(doneJobs6.size()).as("Done Jobs of size 6").isEqualTo(2);
 
         mockServer.verify();
     }
 
     @Test
-    public void test_pruneJobs_nominal() throws JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
+    public void test_pruneJobs_nominal1() throws JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
         testDataLoader.insertPath("214W.203S", DONE);
         testDataLoader.insertPath("214W.204S", DONE);
@@ -356,12 +356,42 @@ public class JobsServiceTests {
     }
 
     @Test
+    public void test_pruneJobs_nominal2() throws JobPruneFailedException, JobSizeException, JobRetrievalFailedException, JobUpdateFailedException {
+
+        jobsService.declareDone( testDataHelper.buildJob("$213S:.:201N:.:.:.:.:.:.:;", DONE) );
+
+        List<String> prePathsLevel2 = jobsService.getDoneJobs(7).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(prePathsLevel2).as("Pre-condition: Jobs to do of size 7").doesNotContain("213S.201N.DONE");
+        assertThat(prePathsLevel2.size()).as("Pre-condition: Jobs to do count of size 7").isEqualTo(0);
+
+        List<String> pathsLevel1 = jobsService.getDoneJobs(8).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(pathsLevel1).as("Jobs to do of size 8").contains("213S.DONE");
+        assertThat(pathsLevel1).as("Jobs to do of size 8").contains("200W.DONE");
+        assertThat(pathsLevel1.size()).as("Jobs to do count of size 8").isEqualTo(2);
+
+        jobsService.declareDone( testDataHelper.buildJob("$215N:.:203S:.:.:.:.:.:.:;", DONE) );
+        jobsService.declareDone( testDataHelper.buildJob("$215N:.:200N:.:.:.:800E:.:.:;", DONE) );
+        jobsService.declareDone( testDataHelper.buildJob("$212W:.:.:.:.:.:.:.:.:;", DONE) );
+
+        List<String> postPathsLevel1bis = jobsService.getDoneJobs(8).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(postPathsLevel1bis.size()).as("Jobs to do count of size 8").isEqualTo(0);
+
+        List<String> postPathsLevel0 = jobsService.getDoneJobs(9).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(postPathsLevel0).as("Jobs to do of size 9").contains("DONE");
+        assertThat(postPathsLevel0.size()).as("Jobs to do count of size 9").isEqualTo(1);
+    }
+
+    @Test
     public void test_pruneJobs_impossible1() throws JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
         testDataLoader.insertPath("214W.203S", DONE);
         testDataLoader.insertPath("214W.204S.404N", DONE);
 
-        jobsService.pruneJobs( testDataHelper.buildJob("$214W:.:.:.:.:.:203S:.:.:;") );
+        jobsService.pruneJobs( testDataHelper.buildJob("$214W:.:203S:.:.:.:.:.:.:;") );
 
         List<String> pathsLevel1 = jobsService.getDoneJobs(8).stream()
                 .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -381,7 +411,7 @@ public class JobsServiceTests {
         testDataLoader.insertPath("214W.203S", DONE);
         testDataLoader.insertPath("214W.204S", GO);
 
-        jobsService.pruneJobs( testDataHelper.buildJob("$214W:.:.:.:.:.:203S:.:.:;") );
+        jobsService.pruneJobs( testDataHelper.buildJob("$214W:.:203S:.:.:.:.:.:.:;") );
 
         List<String> pathsLevel1 = jobsService.getDoneJobs(8).stream()
                 .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -401,11 +431,11 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
         ObjectMapper mapper = new ObjectMapper();
 
-        String queryJobStr = "$213S:.:.:.:.:.:201N:.:.:;";
+        String queryJobStr = "$213S:.:201N:.:.:.:.:.:.:;";
 
         List<JobDescription> responseJobs = Arrays.asList(
-                testDataHelper.buildJobDescription("$213S:.:400E:.:.:.:201N:.:.:;"),
-                testDataHelper.buildJobDescription("$213S:.:500W:.:.:.:201N:.:.:;"));
+                testDataHelper.buildJobDescription("$213S:.:201N:.:.:.:400E:.:.:;"),
+                testDataHelper.buildJobDescription("$213S:.:201N:.:.:.:500W:.:.:;"));
 
         mockServer.expect(once(), requestTo(new URI(subJobsRequest.replace("{job}", queryJobStr))))
             .andExpect(method(HttpMethod.GET))
@@ -441,7 +471,7 @@ public class JobsServiceTests {
     public void test_developBranchOfJobsFromJob_empty() throws JsonProcessingException, URISyntaxException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
-        String queryJob = "$213S:.:.:.:.:.:201N:.:.:;";
+        String queryJob = "$213S:.:201N:.:.:.:.:.:.:;";
 
         testDataHelper.mockHttpQueryResponse(mockServer, queryJob, Collections.emptyList());
 
@@ -495,11 +525,11 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
         ObjectMapper mapper = new ObjectMapper();
 
-        String queryJobStr = "$213S:.:.:.:.:.:201N:.:.:;";
+        String queryJobStr = "$213S:.:201N:.:.:.:.:.:.:;";
 
         List<JobDescription> responseJobs = Arrays.asList(
                 testDataHelper.buildJobDescription("$.:.:.:.:.:.:.:.:.:;"),
-                testDataHelper.buildJobDescription("$213S:.:500W:.:.:.:201N:.:.:;"));
+                testDataHelper.buildJobDescription("$213S:.:201N:.:.:.:500W:.:.:;"));
 
         mockServer.expect(once(), requestTo(new URI(subJobsRequest.replace("{job}", queryJobStr))))
                 .andExpect(method(HttpMethod.GET))
@@ -555,11 +585,11 @@ public class JobsServiceTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
         ObjectMapper mapper = new ObjectMapper();
 
-        String queryJobStr = "$213S:.:.:.:.:.:201N:.:.:;";
+        String queryJobStr = "$213S:.:201N:.:.:.:.:.:.:;";
 
         List<JobDescription> responseJobs = Arrays.asList(
-                testDataHelper.buildJobDescription("$213S:.:400E:.:.:.:201N:.:.:;"),
-                testDataHelper.buildJobDescription("$215N:.:.:.:.:.:203S:.:.:;"));
+                testDataHelper.buildJobDescription("$213S:.:201N:.:.:.:400E:.:.:;"),
+                testDataHelper.buildJobDescription("$215N:.:203S:.:.:.:.:.:.:;"));
 
         mockServer.expect(once(), requestTo(new URI(subJobsRequest.replace("{job}", queryJobStr))))
                 .andExpect(method(HttpMethod.GET))
@@ -608,7 +638,7 @@ public class JobsServiceTests {
     @Test
     public void test_declareDone_nominal() throws JobUpdateFailedException, JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
-        Job initialJob = testDataHelper.buildJob( "$215N:.:.:.:.:.:203S:.:.:;" );
+        Job initialJob = testDataHelper.buildJob( "$215N:.:203S:.:.:.:.:.:.:;" );
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -638,7 +668,7 @@ public class JobsServiceTests {
     @Test
     public void test_declareDone_prune() throws JobUpdateFailedException, JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
-        Job initialJob = testDataHelper.buildJob( "$213S:.:.:.:.:.:201N:.:.:;" );
+        Job initialJob = testDataHelper.buildJob( "$213S:.:201N:.:.:.:.:.:.:;" );
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -677,7 +707,7 @@ public class JobsServiceTests {
     @Test(expected = JobUpdateFailedException.class)
     public void test_declareDone_error() throws Exception {
 
-        Job initialJob = testDataHelper.buildJob( "$215N:.:.:.:.:.:266S:.:.:;" );
+        Job initialJob = testDataHelper.buildJob( "$215N:.:266S:.:.:.:.:.:.:;" );
 
         List<String> jobsTodo_before = jobsService.getJobsToDo(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -716,7 +746,7 @@ public class JobsServiceTests {
     @Test
     public void test_declarePending_nominal() throws JobUpdateFailedException, JobSizeException, JobRetrievalFailedException {
 
-        Job initialJob = testDataHelper.buildJob( "$215N:.:.:.:.:.:203S:.:.:;" );
+        Job initialJob = testDataHelper.buildJob( "$215N:.:203S:.:.:.:.:.:.:;" );
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -744,7 +774,7 @@ public class JobsServiceTests {
     @Test(expected = JobUpdateFailedException.class)
     public void test_declarePending_error_not_exists() throws Exception {
 
-        Job initialJob = testDataHelper.buildJob( "$215N:.:.:.:.:.:266S:.:.:;" );
+        Job initialJob = testDataHelper.buildJob( "$215N:.:266S:.:.:.:.:.:.:;" );
 
         List<String> jobsTodo_before = jobsService.getJobsToDo(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());

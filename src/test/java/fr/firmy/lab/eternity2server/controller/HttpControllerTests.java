@@ -84,8 +84,8 @@ public class HttpControllerTests {
         assertThat(jobs9.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8 = getJobs(7);
-        assertThat(jobs8).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8.size()).as("Jobs to do of size 7").isEqualTo(2);
     }
 
@@ -94,8 +94,8 @@ public class HttpControllerTests {
 
         List<String> jobs8 = httpController.getJobs(7, 1, 1)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
-        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8.size()).as("Jobs to do of size 7").isEqualTo(1);
     }
 
@@ -104,8 +104,8 @@ public class HttpControllerTests {
 
         List<String> jobs8 = httpController.getJobs(7, 1, null)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
-        assertThat(jobs8).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8.size()).as("Jobs to do of size 7").isEqualTo(1);
     }
 
@@ -114,8 +114,8 @@ public class HttpControllerTests {
 
         List<String> jobs8 = httpController.getJobs(7, null, 1)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
-        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8.size()).as("Jobs to do of size 7").isEqualTo(1);
     }
 
@@ -124,8 +124,8 @@ public class HttpControllerTests {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
-        testDataHelper.mockHttpQueryResponse(mockServer, "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+        testDataHelper.mockHttpQueryResponse(mockServer, "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         // Size 9 : no branch development necessary
         List<String> doneJobDescriptions9 = getJobs(8);
@@ -134,14 +134,14 @@ public class HttpControllerTests {
 
         // Size 8 : no branch development necessary
         List<String> doneJobDescriptions8 = getJobs(7);
-        assertThat(doneJobDescriptions8).as("Description of found getJobs to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions8).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions8).as("Description of found getJobs to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         // Size 7 : branch development is triggered
         List<String> doneJobDescriptions7 = getJobs(6);
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 6").contains("$213S:.:400E:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 6").contains("$213S:.:500W:.:.:.:201N:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 6").contains("$213S:.:201N:.:.:.:400E:.:.:;");
+        assertThat(doneJobDescriptions7).as("Description of found getJobs to do of size 6").contains("$213S:.:201N:.:.:.:500W:.:.:;");
         assertThat(doneJobDescriptions7.size()).as("Jobs to do of size 6").isEqualTo(2);
 
         mockServer.verify();
@@ -153,18 +153,18 @@ public class HttpControllerTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+                "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:400E:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:600W:;", "$213S:.:400E:.:.:.:201N:.:700W:;", "$213S:.:400E:.:.:.:201N:.:800W:;"));
+                "$213S:.:201N:.:.:.:400E:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:600W:;", "$213S:.:201N:.:.:.:400E:.:700W:;", "$213S:.:201N:.:.:.:400E:.:800W:;"));
 
         // Size 6 : branch development is triggered
         List<String> doneJobDescriptions6 = getJobs(5);
-        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:600W:;");
-        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:700W:;");
-        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:400E:.:.:.:201N:.:800W:;");
+        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:600W:;");
+        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:700W:;");
+        assertThat(doneJobDescriptions6).as("Description of found getJobs to do of size 5").contains("$213S:.:201N:.:.:.:400E:.:800W:;");
         assertThat(doneJobDescriptions6.size()).as("Jobs to do of size 5").isEqualTo(3);
 
         mockServer.verify();
@@ -176,27 +176,27 @@ public class HttpControllerTests {
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:.:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:400E:.:.:.:201N:.:.:;", "$213S:.:500W:.:.:.:201N:.:.:;"));
+                "$213S:.:201N:.:.:.:.:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:400E:.:.:;", "$213S:.:201N:.:.:.:500W:.:.:;"));
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:400E:.:.:.:201N:.:.:;",
+                "$213S:.:201N:.:.:.:400E:.:.:;",
                 Collections.emptyList());
 
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$213S:.:500W:.:.:.:201N:.:.:;",
-                Arrays.asList("$213S:.:500W:.:.:.:201N:.:600S:;", "$213S:.:500W:.:.:.:201N:.:700S:;"));
+                "$213S:.:201N:.:.:.:500W:.:.:;",
+                Arrays.asList("$213S:.:201N:.:.:.:500W:.:600S:;", "$213S:.:201N:.:.:.:500W:.:700S:;"));
 
         // Size 6 : branch development is triggered, first meeting a dead end, then finding
         List<String> jobsTodoDescriptions6 = getJobs(5);
-        assertThat(jobsTodoDescriptions6).as("Developed Jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:600S:;");
-        assertThat(jobsTodoDescriptions6).as("Developed Jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:700S:;");
+        assertThat(jobsTodoDescriptions6).as("Developed Jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:600S:;");
+        assertThat(jobsTodoDescriptions6).as("Developed Jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:700S:;");
         assertThat(jobsTodoDescriptions6.size()).as("Developed Jobs to do of size 5").isEqualTo(2);
 
         // Size 6 again : won't try to develop branch
         List<String> jobsTodoDescriptions6_again = getJobs(5);
-        assertThat(jobsTodoDescriptions6_again).as("Retrieved jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:600S:;");
-        assertThat(jobsTodoDescriptions6_again).as("Retrieved jobs to do of size 5").contains("$213S:.:500W:.:.:.:201N:.:700S:;");
+        assertThat(jobsTodoDescriptions6_again).as("Retrieved jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:600S:;");
+        assertThat(jobsTodoDescriptions6_again).as("Retrieved jobs to do of size 5").contains("$213S:.:201N:.:.:.:500W:.:700S:;");
         assertThat(jobsTodoDescriptions6_again.size()).as("Retrieved Jobs to do of size 5").isEqualTo(2);
 
         mockServer.verify();
@@ -216,7 +216,7 @@ public class HttpControllerTests {
 
         List<String> solutions = getSolutions();
         assertThat(solutions.size()).as("Solutions").isEqualTo(2);
-        assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+        assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions).as("Solutions found").contains("$215N:203S:7E:6N:5W:4S:3E:2N:1W:;");
     }
 
@@ -228,23 +228,23 @@ public class HttpControllerTests {
         httpController.putResult(result);
 
         List<String> solutions = getSolutions();
-        assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+        assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions.size()).as("Solutions").isEqualTo(1);
     }
 
     @Test
     public void test_put_result_nominal_trigger_auto_pruning() throws ResultSubmissionFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:.:.:.:.:201N:.:.:;", new ArrayList<>(), new Date(), new Date());
+        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
         httpController.putResult(result1);
 
         List<String> solutions = getSolutions();
-        assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+        assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions.size()).as("Solutions").isEqualTo(1);
 
         List<String> doneJobDescriptions8_1 = getJobs(7);
-        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_1.size()).as("Jobs to do of size 7").isEqualTo(1);
     }
 
@@ -253,29 +253,29 @@ public class HttpControllerTests {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
         testDataHelper.mockHttpQueryResponse(mockServer,
-                "$212W:.:.:.:.:.:.:.:.:;", Arrays.asList("$212W:.:.:.:.:.:300N:.:.:;", "$212W:.:.:.:.:.:400N:.:.:;"));
+                "$212W:.:.:.:.:.:.:.:.:;", Arrays.asList("$212W:.:300N:.:.:.:.:.:.:;", "$212W:.:400N:.:.:.:.:.:.:;"));
 
-        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:.:.:.:.:201N:.:.:;", new ArrayList<>(), new Date(), new Date());
-        ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:.:.:.:.:203S:.:.:;", new ArrayList<>(), new Date(), new Date());
+        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
+        ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:203S:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
 
         httpController.putResult(result1);
 
         List<String> solutions = getSolutions();
-        assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+        assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions.size()).as("Solutions").isEqualTo(1);
 
         List<String> doneJobDescriptions8_1 = getJobs(7);
-        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_1.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         httpController.putResult(result2);
 
         List<String> doneJobDescriptions8_2 = getJobs(7);
-        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$215N:.:.:.:.:.:203S:.:.:;");
-        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").contains("$212W:.:.:.:.:.:300N:.:.:;");
-        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").contains("$212W:.:.:.:.:.:400N:.:.:;");
+        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$215N:.:203S:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").contains("$212W:.:300N:.:.:.:.:.:.:;");
+        assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").contains("$212W:.:400N:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_2.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         mockServer.verify();
@@ -291,7 +291,7 @@ public class HttpControllerTests {
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions).as("Solutions found").contains("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(2);
 
@@ -309,7 +309,7 @@ public class HttpControllerTests {
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions).as("Solutions found").contains("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(2);
 
@@ -326,7 +326,7 @@ public class HttpControllerTests {
             httpController.putResult(result);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(1);
             throw e;
         }
@@ -341,7 +341,7 @@ public class HttpControllerTests {
             httpController.putResult(result);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(1);
             throw e;
         }
@@ -356,7 +356,7 @@ public class HttpControllerTests {
             httpController.putResult(result);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions).as("Solutions found").contains("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(2);
             throw e;
@@ -373,7 +373,7 @@ public class HttpControllerTests {
             httpController.putResult(result);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
-            assertThat(solutions).as("Solutions found").contains("$1N:5N:3S:8E:9N:6W:2W:7S:4E:;");
+            assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
             assertThat(solutions).as("Solutions found").doesNotContain("$215N:203S:7E:6N:5W:4S:3E:2N:;");
             assertThat(solutions.size()).as("Solutions").isEqualTo(1);
             throw e;
@@ -386,15 +386,15 @@ public class HttpControllerTests {
     @Test
     public void test_put_status_nominal_pending() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:203S:.:.:;", "PENDING", new Date(), new Date() ) ;
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
         assertThat(jobs9_before.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8_before = getJobs(7);
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         httpController.putStatus(status);
@@ -404,8 +404,8 @@ public class HttpControllerTests {
         assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8_after = getJobs(7);
-        assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_after).as("Description of found job to do of size 7").doesNotContain("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_after).as("Description of found job to do of size 7").doesNotContain("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(1);
 
     }
@@ -420,8 +420,8 @@ public class HttpControllerTests {
         assertThat(jobs9_before.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8_before = getJobs(7);
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
@@ -433,8 +433,8 @@ public class HttpControllerTests {
             assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
 
             List<String> jobs8_after = getJobs(7);
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
             assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(2);
 
             throw e;
@@ -452,8 +452,8 @@ public class HttpControllerTests {
         assertThat(jobs9_before.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8_before = getJobs(7);
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
@@ -465,8 +465,8 @@ public class HttpControllerTests {
             assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
 
             List<String> jobs8_after = getJobs(7);
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
             assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(2);
 
             throw e;
@@ -483,8 +483,8 @@ public class HttpControllerTests {
         assertThat(jobs9_before.size()).as("Jobs to do of size 9").isEqualTo(1);
 
         List<String> jobs8_before = getJobs(7);
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
@@ -496,8 +496,8 @@ public class HttpControllerTests {
             assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
 
             List<String> jobs8_after = getJobs(7);
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
             assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(2);
 
             throw e;
@@ -514,8 +514,8 @@ public class HttpControllerTests {
         assertThat(jobs9_before.size()).as("Jobs to do of size 8").isEqualTo(1);
 
         List<String> jobs8_before = getJobs(7);
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
@@ -527,8 +527,8 @@ public class HttpControllerTests {
             assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
 
             List<String> jobs8_after = getJobs(7);
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:.:.:.:.:201N:.:.:;");
-            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:.:.:.:.:203S:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+            assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
             assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(2);
 
             throw e;

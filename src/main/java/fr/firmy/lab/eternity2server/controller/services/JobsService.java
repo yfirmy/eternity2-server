@@ -89,16 +89,19 @@ public class JobsService {
     private List<Job> developBranchOfJobsFromJobToSize(Job startingPoint, int targetJobSize) throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
         List<Job> foundChildrenJobs = new ArrayList<>();
-        this.developBranchOfJobsFromJob(startingPoint);
-        int childrenJobsSize = startingPoint.getSize() - 1;
-        if( childrenJobsSize > 0 ) {
-            foundChildrenJobs.addAll( getJobs(Action.GO, childrenJobsSize, null, null) );
+        if( targetJobSize < startingPoint.getSize() ) {
+            this.developBranchOfJobsFromJob(startingPoint);
+            int childrenJobsSize = startingPoint.getSize() - 1;
+            List<Job> childrenJobs = getJobs(Action.GO, childrenJobsSize, null, null);
 
-            if( childrenJobsSize > targetJobSize ) {
-                for (Job foundChildrenJob : foundChildrenJobs) {
-                    List<Job> foundGrandChildrenJobs = developBranchOfJobsFromJobToSize(foundChildrenJob, targetJobSize);
-                    if (!foundGrandChildrenJobs.isEmpty()) {
-                        foundChildrenJobs = foundGrandChildrenJobs;
+            if (childrenJobsSize == targetJobSize) {
+                foundChildrenJobs.addAll(childrenJobs);
+            } else {
+
+                for (Job childJob : childrenJobs) {
+                    List<Job> grandChildrenJobs = developBranchOfJobsFromJobToSize(childJob, targetJobSize);
+                    if (!grandChildrenJobs.isEmpty()) {
+                        foundChildrenJobs.addAll(grandChildrenJobs);
                         break;
                     }
                 }
@@ -164,36 +167,43 @@ public class JobsService {
         if ( job!=null && job.isDone() ) {
             try {
                 Node jobNode = nodeAdapter.fromJob(job);
-
-                Optional<MaterializedPath> parent = searchTreeManager.getParent(jobNode.getPath());
-                if( parent.isPresent() ) {
-                    List<Node> siblings = searchTreeManager.getChildren(parent.get());
-
-                    boolean allDone = siblings.stream()
-                            .map( node -> node.getTag().equals(Action.DONE) )
-                            .reduce(Boolean::logicalAnd).orElse(Boolean.FALSE);
-
-                    boolean allSameSize = siblings.stream()
-                            .map( node -> node.getPath().segmentsCount()==jobNode.getPath().segmentsCount() )
-                            .reduce(Boolean::logicalAnd).orElse(Boolean.FALSE);
-
-                    if ( !allDone ) {
-                        LOGGER.debug("No pruning possible for " + jobNode.getPath().toString() + ": sub-tree is not all done");
-                    } else {
-                        if( !allSameSize ) {
-                            LOGGER.debug("No pruning possible for " + jobNode.getPath().toString() + ": siblings have not the same size");
-                        } else {
-                            searchTreeManager.replacePath(siblings, Collections.singletonList(new Node(parent.get(), Action.DONE)));
-                        }
-                    }
-                } else {
-                    LOGGER.warn("The given job ("+jobNode.getPath()+") has no parent");
-                }
-
+                this.pruneBranch( jobNode.getPath() );
 
             } catch( MaterializedPathReplaceFailedException e ) {
                 throw new JobPruneFailedException( e.getErrors(), e );
             }
+        }
+    }
+
+    /*
+     * Recursive method to prune branches, from a leaf to the root if necessary
+     */
+    private void pruneBranch(MaterializedPath materializedPath) throws MaterializedPathReplaceFailedException {
+
+        Optional<MaterializedPath> parent = searchTreeManager.getParent(materializedPath);
+        if( parent.isPresent() ) {
+            List<Node> siblings = searchTreeManager.getChildren(parent.get());
+
+            boolean allDone = siblings.stream()
+                    .map( node -> node.getTag().equals(Action.DONE) )
+                    .reduce(Boolean::logicalAnd).orElse(Boolean.FALSE);
+
+            boolean allSameSize = siblings.stream()
+                    .map( node -> node.getPath().segmentsCount()==materializedPath.segmentsCount() )
+                    .reduce(Boolean::logicalAnd).orElse(Boolean.FALSE);
+
+            if ( !allDone ) {
+                LOGGER.debug("No pruning possible for " + materializedPath.toString() + ": sub-tree is not all done");
+            } else {
+                if( !allSameSize ) {
+                    LOGGER.debug("No pruning possible for " + materializedPath.toString() + ": siblings have not the same size");
+                } else {
+                    searchTreeManager.replacePath(siblings, Collections.singletonList(new Node(parent.get(), Action.DONE)));
+                    this.pruneBranch( parent.get() );
+                }
+            }
+        } else {
+            LOGGER.warn("The given job ("+materializedPath+") has no parent");
         }
     }
 

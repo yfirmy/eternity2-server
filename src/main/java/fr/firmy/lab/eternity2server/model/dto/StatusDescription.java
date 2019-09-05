@@ -1,7 +1,11 @@
 package fr.firmy.lab.eternity2server.model.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import fr.firmy.lab.eternity2server.model.dto.serializer.StatusDescriptionDeserializer;
+
 import java.util.Date;
 
+@JsonDeserialize(using = StatusDescriptionDeserializer.class)
 public class StatusDescription {
 
     private JobDescription job;
