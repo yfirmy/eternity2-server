@@ -10,7 +10,7 @@
     </parent>
     <groupId>fr.firmy.lab</groupId>
     <artifactId>eternity2-server</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <name>eternity2-server</name>
     <description>Eternity II Server</description>
 
@@ -26,6 +26,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

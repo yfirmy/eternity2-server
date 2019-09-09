@@ -1,16 +1,16 @@
 
--- Database: eternity2_prod
+-- Database: eternity2_challenge
 
--- DROP DATABASE eternity2_prod;
+-- DROP DATABASE eternity2_challenge;
 
-CREATE DATABASE eternity2_prod
+CREATE DATABASE eternity2_challenge
     WITH 
     OWNER = e2server
     ENCODING = 'UTF8'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
-GRANT ALL ON DATABASE eternity2_prod TO e2server;
+GRANT ALL ON DATABASE eternity2_challenge TO e2server;
 
 -- Database: eternity2_test
 
