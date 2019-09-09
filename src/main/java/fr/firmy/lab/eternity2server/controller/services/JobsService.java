@@ -72,13 +72,14 @@ public class JobsService {
         return getJobs(Action.PENDING, size, null, null);
     }
 
-    private List<Job> findJobsTodoGreaterThan(int size, Integer limit, Integer offset) throws JobSizeException, JobRetrievalFailedException {
+    private List<Job> findJobsTodoBetween(int fromJobSize, int toJobSize, Integer limit, Integer offset) throws JobSizeException, JobRetrievalFailedException {
         List<Job> foundJobs;
+        int jobSize = fromJobSize;
         do {
-            foundJobs = getJobs(Action.GO, size, limit, offset);
-            size++;
+            foundJobs = getJobs(Action.GO, jobSize, limit, offset);
+            jobSize++;
         }
-        while( foundJobs.isEmpty() && size <= boardSize );
+        while( foundJobs.isEmpty() && jobSize <= toJobSize );
 
         return foundJobs;
     }
@@ -106,6 +107,10 @@ public class JobsService {
                     }
                 }
             }
+        } else {
+            if( targetJobSize == startingPoint.getSize() ) {
+                foundChildrenJobs.add(startingPoint);
+            }
         }
 
         return foundChildrenJobs;
@@ -117,31 +122,31 @@ public class JobsService {
 
     /**
      * Get Jobs To Do With Potential Development of jobs branches
-     * @param size size of the requested jobs
+     * @param jobSize size of the requested jobs
      * @param limit maximum number of retrieved jobs
      * @param offset index of the first retrieved jobs (for pagination)
      * @return the list of available jobs to do
      * @throws JobDevelopmentFailedException thrown in case of branch-developing failure
      */
-    public List<Job> getJobsToDo(int size, Integer limit, Integer offset) throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
+    public List<Job> getJobsToDo(int jobSize, Integer limit, Integer offset) throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        List<Job> foundJobs = getJobs(Action.GO, size, limit, offset);
+        List<Job> foundJobs = getJobs(Action.GO, jobSize, limit, offset);
 
-        while( foundJobs.isEmpty() && size <= boardSize ) {
+        int biggerJobSize = jobSize+1;
+        while( foundJobs.isEmpty() && biggerJobSize <= boardSize ) {
 
-            List<Job> foundBiggerJobs = findJobsTodoGreaterThan(size, null, null);
+            List<Job> foundBiggerJobs = findJobsTodoBetween(jobSize, biggerJobSize, null, null);
 
             if (!foundBiggerJobs.isEmpty()) {
                 for (Job biggerJob : foundBiggerJobs) {
-                    List<Job> foundJobsUnlimited = developBranchOfJobsFromJobToSize(biggerJob, size);
+                    List<Job> foundJobsUnlimited = developBranchOfJobsFromJobToSize(biggerJob, jobSize);
                     if (!foundJobsUnlimited.isEmpty()) {
                         foundJobs = pagination( foundJobsUnlimited, limit, offset );
                         break;
                     }
                 }
             }
-
-            size++;
+            biggerJobSize++;
         }
 
         return foundJobs;
