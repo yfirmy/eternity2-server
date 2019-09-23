@@ -411,6 +411,39 @@ public class HttpControllerTests {
     }
 
     @Test( expected = JobUpdateFailedException.class )
+    public void test_put_status_nominal_pending_already() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
+
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;
+
+        List<String> jobs9_before = getJobs(8);
+        assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
+        assertThat(jobs9_before.size()).as("Jobs to do of size 8").isEqualTo(1);
+
+        List<String> jobs8_before = getJobs(7);
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
+        assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
+
+        httpController.putStatus(status);
+
+        List<String> jobs9_after = getJobs(8);
+        assertThat(jobs9_after).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
+        assertThat(jobs9_after.size()).as("Jobs to do of size 8").isEqualTo(1);
+
+        List<String> jobs8_after = getJobs(7);
+        assertThat(jobs8_after).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
+        assertThat(jobs8_after).as("Description of found job to do of size 7").doesNotContain("$215N:.:203S:.:.:.:.:.:.:;");
+        assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(1);
+
+        try {
+            httpController.putStatus(status);
+        } catch( Exception e ) {
+            throw e;
+        }
+
+    }
+
+    @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_error_job_not_exists() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
         StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;

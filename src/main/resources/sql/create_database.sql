@@ -1,20 +1,43 @@
 
 -- Database: eternity2_challenge
 
--- DROP DATABASE eternity2_challenge;
+-- #
+-- # su - postgres
+-- # pgsgl
+-- #
 
 CREATE DATABASE eternity2_challenge
-    WITH 
-    OWNER = e2server
+    WITH
+    OWNER = e2server_challenge
     ENCODING = 'UTF8'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
-GRANT ALL ON DATABASE eternity2_challenge TO e2server;
+GRANT ALL ON DATABASE eternity2_challenge TO e2server_challenge;
 
--- Database: eternity2_test
+---
 
--- DROP DATABASE eternity2_test;
+CREATE DATABASE eternity2_clue1
+    WITH
+    OWNER = e2server_clue1
+    ENCODING = 'UTF8'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+
+GRANT ALL ON DATABASE eternity2_clue1 TO e2server_clue1;
+
+---
+
+CREATE DATABASE eternity2_sample
+    WITH
+    OWNER = e2server_sample
+    ENCODING = 'UTF8'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+
+GRANT ALL ON DATABASE eternity2_sample TO e2server_sample;
+
+--
 
 CREATE DATABASE eternity2_test
     WITH
@@ -24,3 +47,6 @@ CREATE DATABASE eternity2_test
     CONNECTION LIMIT = -1;
 
 GRANT ALL ON DATABASE eternity2_test TO e2server_test;
+
+
+-- DROP DATABASE eternity2_challenge;

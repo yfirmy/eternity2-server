@@ -39,7 +39,7 @@ public class SearchTreeManager {
             "DELETE FROM search.tree WHERE path = ?::ltree AND tag = ?::search.action";
 
     private static final String updateNodeStatus =
-            "UPDATE search.tree SET tag = ?::search.action WHERE path = ?::ltree";
+            "UPDATE search.tree SET tag = ?::search.action WHERE path = ?::ltree AND tag <> ?::search.action";
 
     private final JdbcTemplate jdbcTemplate;
     private final int boardSize;
@@ -133,7 +133,7 @@ public class SearchTreeManager {
         LOGGER.info("Setting tag "+newTag+ " to "+node.toString());
 
         try {
-            int count = jdbcTemplate.update(updateNodeStatus, newTag.name(), node.getPath().toString());
+            int count = jdbcTemplate.update(updateNodeStatus, newTag.name(), node.getPath().toString(), newTag.name());
             if( count == 0 ) {
                 ErrorDescription error = new ErrorDescription(BAD_REQUEST, node.getPath().toString(), "No Materialized Path's status have been updated");
                 throw new MaterializedPathUpdateFailedException(node.getPath(), error);
