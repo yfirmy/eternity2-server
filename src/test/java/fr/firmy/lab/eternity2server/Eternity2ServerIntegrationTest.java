@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.client.ExpectedCount.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -334,7 +333,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
@@ -365,7 +363,6 @@ public class Eternity2ServerIntegrationTest {
         // WHEN : submitting empty results for one job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$212W:.:300N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
@@ -386,7 +383,6 @@ public class Eternity2ServerIntegrationTest {
         // AND WHEN : submitting empty results for the second job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
@@ -414,7 +410,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
@@ -431,7 +426,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"dateJobTransmission\": \"\"}"))
@@ -449,7 +443,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"215N.203S.8S.7E.6N.5W.4S.3E.2N.1W\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
@@ -467,7 +460,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$215N:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
@@ -485,7 +477,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content(""))
@@ -503,7 +494,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\" }"))
@@ -521,7 +511,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" } ]}"))
@@ -539,7 +528,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \".:.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
@@ -556,7 +544,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
@@ -573,7 +560,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$1N:5N:3S:8E:9N:6W:2W:7S:4E:;\", \"dateSolved\": \"\"}, {\"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\"} ], \"dateJobTransmission\": \"\"}"))
@@ -601,7 +587,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
@@ -618,7 +603,6 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
@@ -626,7 +610,6 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(status().isOk());
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
-                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
