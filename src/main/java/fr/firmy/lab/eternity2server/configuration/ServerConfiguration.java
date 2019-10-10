@@ -20,6 +20,9 @@ public class ServerConfiguration {
     @Value("${solver.subjob.url}")
     String subJobsRequest;
 
+    @Value("${solver.subjob.health.url}")
+    String subJobsHealthRequest;
+
     @Value("${board.size}")
     Integer boardSize;
 
@@ -33,6 +36,14 @@ public class ServerConfiguration {
 
     public void setSubJobsRequest(String subJobsRequest) {
         this.subJobsRequest = subJobsRequest;
+    }
+
+    public String getSubJobsHealthRequest() {
+        return this.subJobsHealthRequest;
+    }
+
+    public void setSubJobsHealthRequest(String subJobsHealthRequest) {
+        this.subJobsHealthRequest = subJobsHealthRequest;
     }
 
     public Integer getBoardSize() {
