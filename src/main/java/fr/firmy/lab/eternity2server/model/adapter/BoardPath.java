@@ -77,7 +77,9 @@ public class BoardPath {
     }
 
     private void fillLastPiece(int ringIdx, List<Coordinates> path) {
-        path.add( new Coordinates( ringIdx, ringIdx ) );
+        if( path.size() == width*width - 1 ) {
+            path.add(new Coordinates(ringIdx, ringIdx));
+        }
     }
 
     private void fillRing(int ringIdx, int N) {

@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {"board.size=25"})
-public class MaterializedPathAdapterTests {
+public class MaterializedPathAdapterTests_Size25 {
 
     @Autowired
     MaterializedPathAdapter adapter;

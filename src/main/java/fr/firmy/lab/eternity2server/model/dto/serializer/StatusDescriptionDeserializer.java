@@ -16,7 +16,7 @@ import java.util.Date;
 @JsonComponent
 public class StatusDescriptionDeserializer extends JsonDeserializer<StatusDescription> {
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD HH:mm:ss.SSS");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     @Override
     public StatusDescription deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
