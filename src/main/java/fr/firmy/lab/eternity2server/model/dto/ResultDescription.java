@@ -12,14 +12,16 @@ public class ResultDescription {
     private JobDescription job;
     private List<SolutionDescription> solutions; // resulting boards
     private Date dateJobTransmission;
+    private SolverDescription solverDescription;
 
     public ResultDescription() {
     }
 
-    public ResultDescription(JobDescription job, List<SolutionDescription> solutions, Date dateCreated) {
+    public ResultDescription(JobDescription job, List<SolutionDescription> solutions, Date dateCreated, SolverDescription solverDescription) {
         this.job = job;
         this.solutions = solutions;
         this.dateJobTransmission = dateCreated;
+        this.solverDescription = solverDescription;
     }
 
     public JobDescription getJob() {
@@ -44,6 +46,14 @@ public class ResultDescription {
 
     public void setDateJobTransmission(Date dateJobTransmission) {
         this.dateJobTransmission = dateJobTransmission;
+    }
+
+    public SolverDescription getSolverDescription() {
+        return solverDescription;
+    }
+
+    public void setSolverDescription(SolverDescription solverDescription) {
+        this.solverDescription = solverDescription;
     }
 
 }

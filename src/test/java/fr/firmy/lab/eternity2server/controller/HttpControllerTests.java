@@ -1,6 +1,7 @@
 package fr.firmy.lab.eternity2server.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.dto.*;
 import fr.firmy.lab.eternity2server.controller.exception.*;
 import fr.firmy.lab.eternity2server.utils.TestDataHelper;
@@ -11,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -208,12 +210,21 @@ public class HttpControllerTests {
     // PUT /result
 
     @Test
-    public void test_put_result_nominal() throws ResultSubmissionFailedException {
+    public void test_put_result_nominal() throws ResultSubmissionFailedException, JobUpdateFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription( "$215N:203S:.:.:.:.:.:.:.:;", Collections.singletonList("$215N:203S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date());
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
-        httpController.putResult(result);
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription("$215N:203S:.:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result = testDataHelper.buildResultDescription( "$215N:203S:.:.:.:.:.:.:.:;", Collections.singletonList("$215N:203S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date(), solver);
 
+        // GIVEN : a locked job
+        httpController.putStatus(status, servletRequest);
+
+        // WHEN : we submit a result for this job
+        httpController.putResult(result, servletRequest);
+
+        // THEN : this result has been recorded
         List<String> solutions = getSolutions();
         assertThat(solutions.size()).as("Solutions").isEqualTo(2);
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -221,27 +232,45 @@ public class HttpControllerTests {
     }
 
     @Test
-    public void test_put_result_nominal_no_solution() throws ResultSubmissionFailedException {
+    public void test_put_result_nominal_no_solution() throws ResultSubmissionFailedException, JobUpdateFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription("$215N:203S:.:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription("$215N:203S:.:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result = testDataHelper.buildResultDescription("$215N:203S:.:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
-        httpController.putResult(result);
+        // GIVEN : a locked job
+        httpController.putStatus(status, servletRequest);
 
+        // WHEN : we submit a empty result for this job
+        httpController.putResult(result, servletRequest);
+
+        // THEN : nothing has changed, always the same result is recorded
         List<String> solutions = getSolutions();
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions.size()).as("Solutions").isEqualTo(1);
     }
 
     @Test
-    public void test_put_result_nominal_trigger_auto_pruning() throws ResultSubmissionFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
+    public void test_put_result_nominal_trigger_auto_pruning() throws ResultSubmissionFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException, JobUpdateFailedException {
 
-        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
-        httpController.putResult(result1);
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status1 = testDataHelper.buildStatusDescription("$213S:.:201N:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
+        // GIVEN : a locked job
+        httpController.putStatus(status1, servletRequest);
+
+        // WHEN : we submit a empty result for this job
+        httpController.putResult(result1, servletRequest);
+
+        // THEN : no other result is recorded
         List<String> solutions = getSolutions();
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
         assertThat(solutions.size()).as("Solutions").isEqualTo(1);
 
+        // AND : this job is not available anymore
         List<String> doneJobDescriptions8_1 = getJobs(7);
         assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
@@ -249,16 +278,24 @@ public class HttpControllerTests {
     }
 
     @Test
-    public void test_put_result_nominal_trigger_auto_pruning_and_more_branches_development() throws ResultSubmissionFailedException, JobDevelopmentFailedException, JobSizeException, URISyntaxException, JsonProcessingException, JobRetrievalFailedException {
+    public void test_put_result_nominal_trigger_auto_pruning_and_more_branches_development() throws ResultSubmissionFailedException, JobDevelopmentFailedException, JobSizeException, URISyntaxException, JsonProcessingException, JobRetrievalFailedException, JobUpdateFailedException {
 
         MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+
         testDataHelper.mockHttpQueryResponse(mockServer,
                 "$212W:.:.:.:.:.:.:.:.:;", Arrays.asList("$212W:.:300N:.:.:.:.:.:.:;", "$212W:.:400N:.:.:.:.:.:.:;"));
 
-        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
-        ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:203S:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
 
-        httpController.putResult(result1);
+        StatusDescription status1 = testDataHelper.buildStatusDescription("$213S:.:201N:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result1 = testDataHelper.buildResultDescription("$213S:.:201N:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
+
+        StatusDescription status2 = testDataHelper.buildStatusDescription("$215N:.:203S:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:203S:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
+
+        httpController.putStatus(status1, servletRequest);
+        httpController.putResult(result1, servletRequest);
 
         List<String> solutions = getSolutions();
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -269,7 +306,8 @@ public class HttpControllerTests {
         assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_1.size()).as("Jobs to do of size 7").isEqualTo(1);
 
-        httpController.putResult(result2);
+        httpController.putStatus(status2, servletRequest);
+        httpController.putResult(result2, servletRequest);
 
         List<String> doneJobDescriptions8_2 = getJobs(7);
         assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
@@ -284,10 +322,12 @@ public class HttpControllerTests {
     @Test( expected = ResultSubmissionFailedException.class )
     public void test_put_result_error_jobmalformed() throws ResultSubmissionFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription( "$10N:9W:.:.:.:.:.:.:;", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        ResultDescription result = testDataHelper.buildResultDescription( "$10N:9W:.:.:.:.:.:.:;", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -302,10 +342,12 @@ public class HttpControllerTests {
     @Test( expected = ResultSubmissionFailedException.class )
     public void test_put_result_error_job_not_exist() throws ResultSubmissionFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription( "$99N:.:.:.:.:.:.:.:.:;", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        ResultDescription result = testDataHelper.buildResultDescription( "$99N:.:.:.:.:.:.:.:.:;", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -321,9 +363,10 @@ public class HttpControllerTests {
     public void test_put_result_error_empty_1() throws ResultSubmissionFailedException {
 
         ResultDescription result = new ResultDescription();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -333,12 +376,17 @@ public class HttpControllerTests {
     }
 
     @Test( expected = ResultSubmissionFailedException.class )
-    public void test_put_result_error_empty_2() throws ResultSubmissionFailedException {
+    public void test_put_result_error_empty_2() throws ResultSubmissionFailedException, JobUpdateFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription("$10N:9W:.:.:.:.:.:.:.:;", null, new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        //StatusDescription status = testDataHelper.buildStatusDescription("$10N:9W:.:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result = testDataHelper.buildResultDescription("$10N:9W:.:.:.:.:.:.:.:;", null, new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+
+        //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -348,12 +396,17 @@ public class HttpControllerTests {
     }
 
     @Test( expected = ResultSubmissionFailedException.class )
-    public void test_put_result_error_empty_3() throws ResultSubmissionFailedException {
+    public void test_put_result_error_empty_3() throws ResultSubmissionFailedException, JobUpdateFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription("", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        //StatusDescription status = testDataHelper.buildStatusDescription("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result = testDataHelper.buildResultDescription("", Collections.singletonList("$9W:8S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+
+        //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -365,12 +418,17 @@ public class HttpControllerTests {
 
 
     @Test( expected = ResultSubmissionFailedException.class )
-    public void test_put_result_error_malformed_solution() throws ResultSubmissionFailedException {
+    public void test_put_result_error_malformed_solution() throws ResultSubmissionFailedException, JobUpdateFailedException {
 
-        ResultDescription result = testDataHelper.buildResultDescription( "$215N:203S:.:.:.:.:.:.:.:.:;", Collections.singletonList("$215N:203S:7E:6N:5W:4S:3E:2N:;"), new Date(), new Date());
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        //StatusDescription status = testDataHelper.buildStatusDescription("$215N:203S:.:.:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
+        ResultDescription result = testDataHelper.buildResultDescription( "$215N:203S:.:.:.:.:.:.:.:.:;", Collections.singletonList("$215N:203S:7E:6N:5W:4S:3E:2N:;"), new Date(), new Date(), solver);
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+
+        //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result);
+            httpController.putResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -386,7 +444,9 @@ public class HttpControllerTests {
     @Test
     public void test_put_status_nominal_pending() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -397,7 +457,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
-        httpController.putStatus(status);
+        httpController.putStatus(status, servletRequest);
 
         List<String> jobs9_after = getJobs(8);
         assertThat(jobs9_after).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -413,7 +473,9 @@ public class HttpControllerTests {
     @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_nominal_pending_already() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:203S:.:.:.:.:.:.:;", "PENDING", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -424,7 +486,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
-        httpController.putStatus(status);
+        httpController.putStatus(status, servletRequest);
 
         List<String> jobs9_after = getJobs(8);
         assertThat(jobs9_after).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -436,7 +498,7 @@ public class HttpControllerTests {
         assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         try {
-            httpController.putStatus(status);
+            httpController.putStatus(status, servletRequest);
         } catch( Exception e ) {
             throw e;
         }
@@ -446,7 +508,9 @@ public class HttpControllerTests {
     @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_error_job_not_exists() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:.:.:.:;", "PENDING", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:.:.:.:;", "PENDING", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -458,7 +522,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status);
+            httpController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -478,7 +542,9 @@ public class HttpControllerTests {
     @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_error_status_not_exists() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:203S:.:.:.:.:.:.:.:;", "WRONG_STATUS", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:203S:.:.:.:.:.:.:.:;", "WRONG_STATUS", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -490,7 +556,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status);
+            httpController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -509,7 +575,9 @@ public class HttpControllerTests {
     @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_error_status_done_forbidden() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:203S:.:.:;", "DONE", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:203S:.:.:;", "DONE", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -521,7 +589,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status);
+            httpController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -540,7 +608,9 @@ public class HttpControllerTests {
     @Test( expected = JobUpdateFailedException.class )
     public void test_put_status_error_status_go_forbidden() throws JobUpdateFailedException, JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:203S:.:.:;", "GO", new Date(), new Date() ) ;
+        SolverDescription solver = testDataHelper.buildSolverDescription();
+        StatusDescription status = testDataHelper.buildStatusDescription( "$215N:.:.:.:.:.:203S:.:.:;", "GO", new Date(), new Date(), solver ) ;
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         List<String> jobs9_before = getJobs(8);
         assertThat(jobs9_before).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -552,7 +622,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status);
+            httpController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);

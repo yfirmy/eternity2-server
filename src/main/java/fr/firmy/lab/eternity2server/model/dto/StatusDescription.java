@@ -12,15 +12,17 @@ public class StatusDescription {
     private String status;
     private Date dateJobTransmission;
     private Date dateStatusUpdate;
+    private SolverDescription solverDescription;
 
     public StatusDescription() {
     }
 
-    public StatusDescription(JobDescription initialJob, String status, Date dateJobTransmission, Date dateStatusUpdate) {
+    public StatusDescription(JobDescription initialJob, String status, Date dateJobTransmission, Date dateStatusUpdate, SolverDescription solverDescription) {
         this.job = initialJob;
         this.status = status;
         this.dateJobTransmission = dateJobTransmission;
         this.dateStatusUpdate = dateStatusUpdate;
+        this.solverDescription = solverDescription;
     }
 
     public JobDescription getJob() {
@@ -55,4 +57,11 @@ public class StatusDescription {
         this.dateStatusUpdate = dateStatusUpdate;
     }
 
+    public SolverDescription getSolverDescription() {
+        return solverDescription;
+    }
+
+    public void setSolverDescription(SolverDescription solverDescription) {
+        this.solverDescription = solverDescription;
+    }
 }

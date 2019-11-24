@@ -1,4 +1,4 @@
-package fr.firmy.lab.eternity2server.controller.services;
+package fr.firmy.lab.eternity2server.controller.dal;
 
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
 import fr.firmy.lab.eternity2server.model.*;
@@ -50,7 +50,7 @@ public class SearchTreeManager {
         this.boardSize = configuration.getBoardSize();
     }
 
-    List<MaterializedPath> getPathsAtLevel(Action tag, int level, Integer limit, Integer offset) {
+    public List<MaterializedPath> getPathsAtLevel(Action tag, int level, Integer limit, Integer offset) {
         List<MaterializedPath> result = new ArrayList<>();
         if( level >= 0 && level <= boardSize ) {
             String lquery = "*{"+level+"}";
@@ -150,17 +150,17 @@ public class SearchTreeManager {
         return this.getPaths( node.getPath().toString(), node.getTag(), null, null ).size()>0 ;
     }
 
-    List<Node> getChildren(MaterializedPath materializedPath) {
+    public List<Node> getChildren(MaterializedPath materializedPath) {
         return getAllPaths(  ( materializedPath.isRoot() ? "" : materializedPath.toString() + "." ) + "*" ).stream()
                 .filter(line -> !line.getPath().equals(materializedPath))
                 .collect(Collectors.toList());
     }
 
-    Optional<MaterializedPath> getParent(MaterializedPath materializedPath) {
+    public Optional<MaterializedPath> getParent(MaterializedPath materializedPath) {
         return materializedPath.getParent();
     }
 
-    boolean isParentOf(MaterializedPath parent, MaterializedPath child) {
+    public boolean isParentOf(MaterializedPath parent, MaterializedPath child) {
         Optional<MaterializedPath> actualParent = this.getParent(child);
         return (actualParent.isPresent() && parent.equals( actualParent.get() )) || ( !actualParent.isPresent() && parent.isRoot() );
     }

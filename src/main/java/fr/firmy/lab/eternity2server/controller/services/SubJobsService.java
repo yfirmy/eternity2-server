@@ -1,6 +1,7 @@
 package fr.firmy.lab.eternity2server.controller.services;
 
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
+import fr.firmy.lab.eternity2server.controller.dal.SearchTreeManager;
 import fr.firmy.lab.eternity2server.controller.exception.MalformedJobDescriptionException;
 import fr.firmy.lab.eternity2server.controller.exception.SolverResultException;
 import fr.firmy.lab.eternity2server.model.Job;

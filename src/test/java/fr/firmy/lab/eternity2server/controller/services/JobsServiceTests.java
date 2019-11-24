@@ -3,6 +3,7 @@ package fr.firmy.lab.eternity2server.controller.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.firmy.lab.eternity2server.model.Job;
+import fr.firmy.lab.eternity2server.model.SolverInfo;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.NodeAdapter;
 import fr.firmy.lab.eternity2server.model.dto.BoardDescription;
@@ -358,7 +359,11 @@ public class JobsServiceTests {
     @Test
     public void test_pruneJobs_nominal2() throws JobPruneFailedException, JobSizeException, JobRetrievalFailedException, JobUpdateFailedException {
 
-        jobsService.declareDone( testDataHelper.buildJob("$213S:.:201N:.:.:.:.:.:.:;", DONE) );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
+        testDataLoader.registerSolver("215N.200N.800E", solverInfo);
+
+        jobsService.declarePending( testDataHelper.buildJob("$213S:.:201N:.:.:.:.:.:.:;", PENDING), solverInfo );
+        jobsService.declareDone( testDataHelper.buildJob("$213S:.:201N:.:.:.:.:.:.:;", DONE), solverInfo );
 
         List<String> prePathsLevel2 = jobsService.getDoneJobs(7).stream()
                 .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -371,9 +376,14 @@ public class JobsServiceTests {
         assertThat(pathsLevel1).as("Jobs to do of size 8").contains("200W.DONE");
         assertThat(pathsLevel1.size()).as("Jobs to do count of size 8").isEqualTo(2);
 
-        jobsService.declareDone( testDataHelper.buildJob("$215N:.:203S:.:.:.:.:.:.:;", DONE) );
-        jobsService.declareDone( testDataHelper.buildJob("$215N:.:200N:.:.:.:800E:.:.:;", DONE) );
-        jobsService.declareDone( testDataHelper.buildJob("$212W:.:.:.:.:.:.:.:.:;", DONE) );
+        jobsService.declarePending( testDataHelper.buildJob("$215N:.:203S:.:.:.:.:.:.:;", PENDING), solverInfo );
+        jobsService.declareDone( testDataHelper.buildJob("$215N:.:203S:.:.:.:.:.:.:;", DONE), solverInfo );
+
+        // Job "$215N:.:200N:.:.:.:800E:.:.:;" is already declared as PENDING for this solver
+        jobsService.declareDone( testDataHelper.buildJob("$215N:.:200N:.:.:.:800E:.:.:;", DONE), solverInfo );
+
+        jobsService.declarePending( testDataHelper.buildJob("$212W:.:.:.:.:.:.:.:.:;", PENDING), solverInfo );
+        jobsService.declareDone( testDataHelper.buildJob("$212W:.:.:.:.:.:.:.:.:;", DONE), solverInfo );
 
         List<String> postPathsLevel1bis = jobsService.getDoneJobs(8).stream()
                 .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -639,6 +649,7 @@ public class JobsServiceTests {
     public void test_declareDone_nominal() throws JobUpdateFailedException, JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
         Job initialJob = testDataHelper.buildJob( "$215N:.:203S:.:.:.:.:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -651,7 +662,8 @@ public class JobsServiceTests {
         assertThat(jobsDone_before).as("Jobs done of size 7 before submission").contains("213S.202W.DONE");
         assertThat(jobsDone_before.size()).as("Jobs to do of size 7 before submission").isEqualTo(1);
 
-        jobsService.declareDone( initialJob );
+        jobsService.declarePending( initialJob, solverInfo );
+        jobsService.declareDone( initialJob, solverInfo );
 
         List<String> pathsLevel2_after = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -669,6 +681,7 @@ public class JobsServiceTests {
     public void test_declareDone_prune() throws JobUpdateFailedException, JobPruneFailedException, JobSizeException, JobRetrievalFailedException {
 
         Job initialJob = testDataHelper.buildJob( "$213S:.:201N:.:.:.:.:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -686,7 +699,8 @@ public class JobsServiceTests {
         assertThat(jobsDone9_before).as("Jobs done of size 8 before submission").contains("200W.DONE");
         assertThat(jobsDone9_before.size()).as("Jobs to do of size 8 before submission").isEqualTo(1);
 
-        jobsService.declareDone( initialJob );
+        jobsService.declarePending( initialJob, solverInfo );
+        jobsService.declareDone( initialJob, solverInfo );
 
         List<String> pathsLevel2_after = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -708,6 +722,7 @@ public class JobsServiceTests {
     public void test_declareDone_error() throws Exception {
 
         Job initialJob = testDataHelper.buildJob( "$215N:.:266S:.:.:.:.:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
 
         List<String> jobsTodo_before = jobsService.getJobsToDo(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -723,7 +738,8 @@ public class JobsServiceTests {
         assertThat(jobsDone_before.size()).as("Jobs to do of size 7 before submission").isEqualTo(1);
 
         try {
-            jobsService.declareDone( initialJob );
+            jobsService.declarePending( initialJob, solverInfo );
+            jobsService.declareDone( initialJob, solverInfo );
         } catch( Exception  e ) {
 
             List<String> pathsLevel2_after = jobsService.getJobsToDo(7, null, null)
@@ -747,6 +763,7 @@ public class JobsServiceTests {
     public void test_declarePending_nominal() throws JobUpdateFailedException, JobSizeException, JobRetrievalFailedException {
 
         Job initialJob = testDataHelper.buildJob( "$215N:.:203S:.:.:.:.:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
 
         List<String> jobsTodo_before = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -758,7 +775,7 @@ public class JobsServiceTests {
                 .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
         assertThat(jobsPending_before.size()).as("Jobs pending of size 7 before submission").isEqualTo(0);
 
-        jobsService.declarePending( initialJob );
+        jobsService.declarePending( initialJob, solverInfo );
 
         List<String> pathsLevel2_after = jobsService.getJobsToDo_NoDevelop(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -775,6 +792,7 @@ public class JobsServiceTests {
     public void test_declarePending_error_not_exists() throws Exception {
 
         Job initialJob = testDataHelper.buildJob( "$215N:.:266S:.:.:.:.:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
 
         List<String> jobsTodo_before = jobsService.getJobsToDo(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
@@ -788,7 +806,7 @@ public class JobsServiceTests {
         assertThat(jobsPending_before.size()).as("Jobs pending of size 8 before submission").isEqualTo(0);
 
         try {
-            jobsService.declarePending( initialJob );
+            jobsService.declarePending( initialJob, solverInfo );
         } catch( Exception  e ) {
 
             List<String> pathsLevel2_after = jobsService.getJobsToDo(7, null, null)
@@ -809,6 +827,8 @@ public class JobsServiceTests {
     @Test(expected = JobUpdateFailedException.class)
     public void test_declarePending_error_malformed() throws Exception {
 
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
+
         List<String> jobsTodo_before = jobsService.getJobsToDo(7, null, null)
                 .stream().map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
         assertThat(jobsTodo_before).as("Jobs to do of size 7 before submission").contains("213S.201N.GO");
@@ -821,7 +841,7 @@ public class JobsServiceTests {
         assertThat(jobsPending_before.size()).as("Jobs pending of size 7 before submission").isEqualTo(0);
 
         try {
-            jobsService.declarePending( jobAdapter.fromDescription( new JobDescription( new BoardDescription("$666W:.:.:.:.:.:.:.:.:;")) ) );
+            jobsService.declarePending( jobAdapter.fromDescription( new JobDescription( new BoardDescription("$666W:.:.:.:.:.:.:.:.:;")) ), solverInfo );
         } catch( Exception  e ) {
 
             List<String> pathsLevel2_after = jobsService.getJobsToDo(7, null, null)

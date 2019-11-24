@@ -1,12 +1,13 @@
 package fr.firmy.lab.eternity2server.controller;
 
 import fr.firmy.lab.eternity2server.controller.services.JobsService;
-import fr.firmy.lab.eternity2server.controller.services.SolutionsRepository;
+import fr.firmy.lab.eternity2server.controller.dal.SolutionsRepository;
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.Solution;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.SolutionAdapter;
+import fr.firmy.lab.eternity2server.model.adapter.SolverInfoAdapter;
 import fr.firmy.lab.eternity2server.model.dto.*;
 import fr.firmy.lab.eternity2server.controller.exception.*;
 
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,13 +29,15 @@ public class HttpController {
     // adapters
     private final SolutionAdapter solutionAdapter;
     private final JobAdapter jobAdapter;
+    private final SolverInfoAdapter solverInfoAdapter;
 
     @Autowired
-    public HttpController(JobsService jobsService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter) {
+    public HttpController(JobsService jobsService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter) {
         this.jobsService = jobsService;
         this.solutionsRepository = solutionsRepository;
         this.solutionAdapter = solutionAdapter;
         this.jobAdapter = jobAdapter;
+        this.solverInfoAdapter = solverInfoAdapter;
     }
 
     @GetMapping(value = "/jobs")
@@ -47,7 +51,7 @@ public class HttpController {
     }
 
     @PutMapping(value = "/result")
-    public void putResult(@RequestBody ResultDescription result) throws ResultSubmissionFailedException {
+    public void putResult(@RequestBody ResultDescription result, HttpServletRequest request) throws ResultSubmissionFailedException {
 
         if( result.getSolutions() != null ) {
 
@@ -74,13 +78,18 @@ public class HttpController {
 
         if( result.getJob() != null ) {
             try {
-                jobsService.declareDone( new Job( jobAdapter.fromDescription(result.getJob()), Action.DONE ));
+                jobsService.declareDone(
+                        new Job( jobAdapter.fromDescription(result.getJob()), Action.DONE ),
+                        solverInfoAdapter.fromDescription(result.getSolverDescription(), request.getRemoteAddr())
+                );
             } catch (JobUpdateFailedException e) {
                 throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, result.getJob().getJob().getRepresentation(), "Impossible to update job")), e);
             } catch( JobPruneFailedException e) {
                 throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.INTERNAL_SERVER_ERROR, result.getJob().getJob().getRepresentation(), "Impossible to prune branches after job update")), e);
             } catch ( MalformedJobDescriptionException e) {
                 throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, result.getJob().getJob().getRepresentation(), "Impossible to update job: Job is malformed in the request")), e);
+            } catch ( MalformedSolverDescriptionException e) {
+                throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, result.getJob().getJob().getRepresentation(), "Impossible to update job: Solver description is malformed in the request")), e);
             }
         } else {
             throw new ResultSubmissionFailedException(Collections.singletonList(new ErrorDescription(HttpStatus.BAD_REQUEST, "/result", "Job is missing in the request")));
@@ -97,15 +106,20 @@ public class HttpController {
     }
 
     @PutMapping(value = "/status")
-    public void putStatus(@RequestBody StatusDescription status) throws JobUpdateFailedException {
+    public void putStatus(@RequestBody StatusDescription status, HttpServletRequest request) throws JobUpdateFailedException {
 
         Optional<ErrorDescription> error = Optional.empty();
         if( status.getStatus().equalsIgnoreCase(Action.PENDING.name() ) ) {
 
             try {
-                jobsService.declarePending(new Job(jobAdapter.fromDescription(status.getJob()), Action.PENDING));
-            } catch( MalformedJobDescriptionException  e) {
+                jobsService.declarePending(
+                        new Job(jobAdapter.fromDescription(status.getJob()), Action.PENDING),
+                        solverInfoAdapter.fromDescription(status.getSolverDescription(), request.getRemoteAddr())
+                );
+            } catch(MalformedJobDescriptionException e) {
                 error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "The given job is malformed in the request"));
+            } catch(MalformedSolverDescriptionException e) {
+                error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "The given solver description is malformed in the request"));
             }
 
         } else {

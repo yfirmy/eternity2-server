@@ -1,6 +1,8 @@
 package fr.firmy.lab.eternity2server.controller.services;
 
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
+import fr.firmy.lab.eternity2server.controller.dal.SearchTreeManager;
+import fr.firmy.lab.eternity2server.controller.dal.WorkersRegistry;
 import fr.firmy.lab.eternity2server.model.*;
 import fr.firmy.lab.eternity2server.model.adapter.BoardAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
@@ -27,6 +29,7 @@ public class JobsService {
 
     private final SearchTreeManager searchTreeManager;
     private final SubJobsService subJobsService;
+    private final WorkersRegistry workersRegistry;
     private final int boardSize;
 
     // adapters
@@ -36,10 +39,11 @@ public class JobsService {
     private BoardAdapter boardAdapter;
 
     @Autowired
-    public JobsService(SearchTreeManager searchTreeManager, SubJobsService subJobsService, ServerConfiguration configuration,
+    public JobsService(SearchTreeManager searchTreeManager, SubJobsService subJobsService, WorkersRegistry workersRegistry, ServerConfiguration configuration,
                        JobAdapter jobAdapter, NodeAdapter nodeAdapter, MaterializedPathAdapter materializedPathAdapter, BoardAdapter boardAdapter) {
         this.searchTreeManager = searchTreeManager;
         this.subJobsService = subJobsService;
+        this.workersRegistry = workersRegistry;
         this.boardSize = configuration.getBoardSize();
         this.jobAdapter = jobAdapter;
         this.nodeAdapter = nodeAdapter;
@@ -259,12 +263,13 @@ public class JobsService {
      *  - When submitResult(empty or not) for job 'A.B1.GO'
      *  - Then remove 'A.B1.GO' and replace by new 'A.B1.DONE'
      */
-    public void declareDone(Job initialJob) throws JobUpdateFailedException, JobPruneFailedException {
+    public void declareDone(Job initialJob, SolverInfo solverInfo) throws JobUpdateFailedException, JobPruneFailedException {
 
         try {
             Job doneJob = this.updateJobStatus(initialJob, Action.DONE);
             this.pruneJobs(doneJob);
-        } catch (MaterializedPathUpdateFailedException e) {
+            this.unregisterSolver(initialJob, solverInfo);
+        } catch (MaterializedPathUpdateFailedException | UnregisteringFailedException e) {
             throw new JobUpdateFailedException(e.getError(), e);
         }
     }
@@ -276,11 +281,12 @@ public class JobsService {
      *  - When declarePending('A.B1.GO')
      *  - Then remove 'A.B1.GO' and replace by new 'A.B1.PENDING'
      */
-    public void declarePending(Job job) throws JobUpdateFailedException {
+    public void declarePending(Job job, SolverInfo solverInfo) throws JobUpdateFailedException {
 
         try {
             this.updateJobStatus(job, Action.PENDING);
-        } catch (MaterializedPathUpdateFailedException e1) {
+            this.registerSolver(job, solverInfo);
+        } catch (MaterializedPathUpdateFailedException | RegisteringFailedException e1) {
             throw new JobUpdateFailedException(e1.getError(), e1);
         }
     }
@@ -299,6 +305,27 @@ public class JobsService {
         searchTreeManager.updateTag( nodeAdapter.fromJob(initialJob), newStatus );
 
         return jobDone;
+    }
+
+    private void registerSolver(Job job, SolverInfo solverInfo) throws RegisteringFailedException {
+
+        workersRegistry.addPendingJob(
+                nodeAdapter.fromJob(job),
+                solverInfo.getName(),
+                solverInfo.getIp().getHostAddress(),
+                solverInfo.getVersion(),
+                solverInfo.getMachineType(),
+                solverInfo.getClusterName(),
+                solverInfo.getScore()
+        );
+    }
+
+    private void unregisterSolver(Job job, SolverInfo solverInfo) throws UnregisteringFailedException {
+
+        workersRegistry.removePendingJob(
+                nodeAdapter.fromJob(job),
+                solverInfo.getName()
+        );
     }
 
 

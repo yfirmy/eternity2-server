@@ -1,4 +1,4 @@
-package fr.firmy.lab.eternity2server.controller.services;
+package fr.firmy.lab.eternity2server.controller.dal;
 
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
 import fr.firmy.lab.eternity2server.model.MaterializedPath;

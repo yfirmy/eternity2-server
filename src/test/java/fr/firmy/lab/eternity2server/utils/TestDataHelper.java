@@ -8,6 +8,7 @@ import fr.firmy.lab.eternity2server.controller.exception.MalformedSolutionDescri
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.Solution;
+import fr.firmy.lab.eternity2server.model.SolverInfo;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.SolutionAdapter;
 import fr.firmy.lab.eternity2server.model.dto.*;
@@ -17,11 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.client.MockRestServiceServer;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.test.web.client.ExpectedCount.once;
@@ -48,11 +52,15 @@ public class TestDataHelper {
         return new JobDescription(new BoardDescription(description));
     }
 
-    public StatusDescription buildStatusDescription(String job, String status, Date dateJobTransmission, Date dateResult) {
-        return new StatusDescription( new JobDescription(new BoardDescription(job)), status, dateJobTransmission, dateResult );
+    public SolverDescription buildSolverDescription() {
+        return new SolverDescription( "mock-" + UUID.randomUUID().toString(), "0.0.1", "desktop", "unit-test", Double.toString(1.0));
     }
 
-    public ResultDescription buildResultDescription(String job, List<String> results, Date dateJobTransmission, Date dateResult) {
+    public StatusDescription buildStatusDescription(String job, String status, Date dateJobTransmission, Date dateResult, SolverDescription solverDescription) {
+        return new StatusDescription( new JobDescription(new BoardDescription(job)), status, dateJobTransmission, dateResult, solverDescription );
+    }
+
+    public ResultDescription buildResultDescription(String job, List<String> results, Date dateJobTransmission, Date dateResult, SolverDescription solverDescription) {
         List<SolutionDescription> descriptions = null;
         if( results != null ) {
             descriptions = new ArrayList<>();
@@ -60,9 +68,18 @@ public class TestDataHelper {
                 descriptions.add(new SolutionDescription(new BoardDescription(result), new Date()));
             }
         }
-        return new ResultDescription( new JobDescription(new BoardDescription(job)), descriptions, dateJobTransmission );
+        return new ResultDescription( new JobDescription(new BoardDescription(job)), descriptions, dateJobTransmission, solverDescription );
     }
 
+    public SolverInfo buildSolverInfo() {
+        SolverInfo solverInfo = null;
+        try {
+            solverInfo = new SolverInfo( "mock-" + UUID.randomUUID().toString(), InetAddress.getByName("127.0.0.1"), "0.0.1", "desktop", "unit-test", 1.0);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return solverInfo;
+    }
 
     public BoardDescription buildBoardDescription(String description) {
         return new BoardDescription( description );
@@ -105,5 +122,4 @@ public class TestDataHelper {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(jobDescriptions), MediaType.APPLICATION_JSON));
     }
-
 }

@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
@@ -332,10 +333,22 @@ public class Eternity2ServerIntegrationTest {
 
         this.setUpMock(0, 0,0, 0);
 
+        String solverName = "mock-"+UUID.randomUUID().toString();
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf8")
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                        "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                        "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                         "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -347,6 +360,7 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_nominal_triggering_auto_pruning() throws Exception {
 
         this.setUpMock(1, 1,1, 1);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         // GIVEN : requesting jobs of size 8 (triggers developing branches)
 
@@ -360,12 +374,25 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(jsonPath("$[0].job", is("$212W:.:300N:.:.:.:.:.:.:;")))
                 .andExpect(jsonPath("$[1].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
-        // WHEN : submitting empty results for one job
+        // WHEN : locking one job
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf8")
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                         "\"job\": \"$212W:.:300N:.:.:.:.:.:.:;\", "+
+                         "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // AND: submitting empty results for one job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$212W:.:300N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                          "\"job\": \"$212W:.:300N:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -380,11 +407,24 @@ public class Eternity2ServerIntegrationTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].job", is("$212W:.:400N:.:.:.:.:.:.:;")));
 
-        // AND WHEN : submitting empty results for the second job
+        // WHEN : locking the second job
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf8")
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                        "\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", "+
+                        "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // AND : submitting empty results for the second job
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -408,11 +448,24 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_nominal_with_no_solution() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf8")
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                        "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                        "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [], "+
+                          "\"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -424,11 +477,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_error_missing_solutions_field() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                          "\"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -441,11 +497,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_error_malformed_solution() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"215N.203S.8S.7E.6N.5W.4S.3E.2N.1W\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"215N.203S.8S.7E.6N.5W.4S.3E.2N.1W\", "+
+                          "\"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -458,11 +517,15 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_error_job_doesnt_exist() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$215N:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$215N:.:.:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", "+
+                          "\"dateSolved\":\"\" } ], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -492,11 +555,13 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_error_missing_result() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\" }"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\" }"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -509,11 +574,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_error_missing_job() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" } ]}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", "+
+                          "\"dateSolved\": \"\" } ]}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(not(isEmptyString())));
@@ -526,11 +594,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_malformed_job() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \".:.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \".:.:.:.:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -542,11 +613,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_result_wrong_length_solution() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                          "\"solutions\": [ { \"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:;\", \"dateSolved\": \"\" }], \"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -558,11 +632,25 @@ public class Eternity2ServerIntegrationTest {
     public void get_solutions_nominal() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
+
+        mvc.perform(put(API_ETERNITY2_PUT_STATUS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf8")
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
+                        "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                        "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mvc.perform(put(API_ETERNITY2_PUT_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": [ { \"solution\": \"$1N:5N:3S:8E:9N:6W:2W:7S:4E:;\", \"dateSolved\": \"\"}, {\"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\"} ], \"dateJobTransmission\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"solutions\": "+
+                          "[ {\"solution\": \"$1N:5N:3S:8E:9N:6W:2W:7S:4E:;\", \"dateSolved\": \"\"}, "+
+                           "{\"solution\": \"$215N:203S:7E:6N:5W:4S:3E:2N:1W:;\", \"dateSolved\": \"\"} ], "+
+                          "\"dateJobTransmission\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -585,11 +673,14 @@ public class Eternity2ServerIntegrationTest {
     public void put_status_nominal() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "  +
+                          "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                          "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -601,18 +692,23 @@ public class Eternity2ServerIntegrationTest {
     public void put_status_again_will_fail() throws Exception {
 
         this.setUpMock(0, 0,0, 0);
+        String solverName = "mock-"+UUID.randomUUID().toString();
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                         "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", " +
+                         "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isOk());
 
         mvc.perform(put(API_ETERNITY2_PUT_STATUS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
-                .content("{\"job\": \"$.:.:.:.:.:.:.:.:.:;\", \"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
+                .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
+                         "\"job\": \"$.:.:.:.:.:.:.:.:.:;\", "+
+                         "\"status\": \"PENDING\", \"dateJobTransmission\": \"\", \"dateStatusUpdate\": \"\"}"))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 

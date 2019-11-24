@@ -1,6 +1,7 @@
 package fr.firmy.lab.eternity2server.utils;
 
 import fr.firmy.lab.eternity2server.model.Action;
+import fr.firmy.lab.eternity2server.model.SolverInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,16 @@ public class TestDataLoader {
     private static String insertResult =
             "INSERT INTO search.results (creation_time, path) VALUES (DEFAULT, ?::ltree)";
 
+    private static String registerSolver =
+            "INSERT INTO search.pending "+
+            "(pending_job, solver_name, solver_ip, solver_version, solver_machine_type, solver_cluster_name, solver_score, solving_start_time) "+
+            "VALUES (?::ltree, ?, ?::inet, ?, ?, ?, ?, DEFAULT)";
+
     private static String truncateResults =
             "TRUNCATE search.results";
+
+    private static String truncatePendings =
+            "TRUNCATE search.pending";
 
     @Autowired
     private JdbcTemplate eternity2JdbcTemplate;
@@ -53,10 +62,23 @@ public class TestDataLoader {
     public void deleteData() {
         eternity2JdbcTemplate.update(truncateRequest);
         eternity2JdbcTemplate.update(truncateResults);
+        eternity2JdbcTemplate.update(truncatePendings);
     }
 
     private void insertResult(String path) {
         eternity2JdbcTemplate.update(insertResult, path);
+    }
+
+    public void registerSolver(String pending_job, SolverInfo solverInfo) {
+
+        eternity2JdbcTemplate.update(registerSolver,
+                                     pending_job,
+                                     solverInfo.getName(),
+                                     solverInfo.getIp().getHostAddress(),
+                                     solverInfo.getVersion(),
+                                     solverInfo.getMachineType(),
+                                     solverInfo.getClusterName(),
+                                     solverInfo.getScore());
     }
 
 }
