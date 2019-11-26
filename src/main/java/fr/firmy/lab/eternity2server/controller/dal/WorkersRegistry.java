@@ -69,7 +69,7 @@ public class WorkersRegistry {
         try {
             int count = jdbcTemplate.update(removePendingJobRequest, pending_job.getPath().toString(), solver_name);
             if( count == 0 ) {
-                throw new UnregisteringFailedException(solver_name, pending_job);
+                LOGGER.warn("Pending job "+pending_job.getPath().toString()+" associated with solver "+solver_name+" was not found in Registry");
             }
         } catch(Exception e) {
             throw new UnregisteringFailedException(solver_name, pending_job, e);

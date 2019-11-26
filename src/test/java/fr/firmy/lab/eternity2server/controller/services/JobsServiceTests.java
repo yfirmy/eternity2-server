@@ -738,7 +738,6 @@ public class JobsServiceTests {
         assertThat(jobsDone_before.size()).as("Jobs to do of size 7 before submission").isEqualTo(1);
 
         try {
-            jobsService.declarePending( initialJob, solverInfo );
             jobsService.declareDone( initialJob, solverInfo );
         } catch( Exception  e ) {
 
@@ -818,7 +817,7 @@ public class JobsServiceTests {
 
             List<String> jobsPending_after = jobsService.getPendingJobs(7).stream()
                     .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
-            assertThat(jobsPending_after.size()).as("Jobs to do of size 7 after submission").isEqualTo(0);
+            assertThat(jobsPending_after.size()).as("Jobs pending of size 7 after submission").isEqualTo(0);
 
             throw e;
         }
@@ -853,10 +852,97 @@ public class JobsServiceTests {
 
             List<String> jobsPending_after = jobsService.getPendingJobs(7).stream()
                     .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
-            assertThat(jobsPending_after.size()).as("Jobs to do of size 7 after submission").isEqualTo(0);
+            assertThat(jobsPending_after.size()).as("Jobs pending of size 7 after submission").isEqualTo(0);
 
             throw e;
         }
+    }
+
+    @Test(expected = JobUpdateFailedException.class)
+    public void test_declarePending_error_alreadyPending() throws Exception {
+
+        Job initialJob = testDataHelper.buildJob( "$215N:.:200N:.:.:.:800E:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
+
+        List<String> jobsPending_before = jobsService.getPendingJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsPending_before).as("Jobs pending of size 6 before").contains("215N.200N.800E.PENDING");
+        assertThat(jobsPending_before.size()).as("Jobs pending of size 6 before").isEqualTo(1);
+
+        try {
+            jobsService.declarePending( initialJob, solverInfo );
+        } catch( Exception  e ) {
+
+            List<String> jobsPending_after = jobsService.getPendingJobs(6).stream()
+                    .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+            assertThat(jobsPending_after).as("Jobs pending of size 6 after").contains("215N.200N.800E.PENDING");
+            assertThat(jobsPending_after.size()).as("Jobs pending of size 6 after").isEqualTo(1);
+
+            throw e;
+        }
+    }
+
+    @Test(expected = JobUpdateFailedException.class)
+    public void test_declarePending_error_alreadyDone() throws Exception {
+
+        Job initialJob = testDataHelper.buildJob( "$215N:.:200N:.:.:.:700E:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
+
+        List<String> jobsPending_before = jobsService.getPendingJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsPending_before).as("Jobs pending of size 6 before").contains("215N.200N.800E.PENDING");
+        assertThat(jobsPending_before.size()).as("Jobs pending of size 6 before").isEqualTo(1);
+
+        List<String> jobsDone_before = jobsService.getDoneJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsDone_before).as("Jobs to do of size 6 before").contains("215N.200N.700E.DONE");
+        assertThat(jobsDone_before.size()).as("Jobs done of size 6 before").isEqualTo(1);
+
+        try {
+            jobsService.declarePending( initialJob, solverInfo );
+        } catch( Exception  e ) {
+
+            List<String> jobsPending_after = jobsService.getPendingJobs(6).stream()
+                    .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+            assertThat(jobsPending_after).as("Jobs to do of size 6 after").contains("215N.200N.800E.PENDING");
+            assertThat(jobsPending_after.size()).as("Jobs pending of size 6 after").isEqualTo(1);
+
+            List<String> jobsDone_after = jobsService.getDoneJobs(6).stream()
+                    .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+            assertThat(jobsDone_after).as("Jobs to do of size 6 after").contains("215N.200N.700E.DONE");
+            assertThat(jobsDone_after.size()).as("Jobs done of size 6 after").isEqualTo(1);
+
+            throw e;
+        }
+    }
+
+    @Test
+    public void test_declareDone_nominal_alreadyDone() throws Exception {
+
+        Job initialJob = testDataHelper.buildJob( "$215N:.:200N:.:.:.:700E:.:.:;" );
+        SolverInfo solverInfo = testDataHelper.buildSolverInfo();
+
+        List<String> jobsPending_before = jobsService.getPendingJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsPending_before).as("Jobs pending of size 6 before").contains("215N.200N.800E.PENDING");
+        assertThat(jobsPending_before.size()).as("Jobs pending of size 6 before").isEqualTo(1);
+
+        List<String> jobsDone_before = jobsService.getDoneJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsDone_before).as("Jobs to do of size 6 before").contains("215N.200N.700E.DONE");
+        assertThat(jobsDone_before.size()).as("Jobs done of size 6 before").isEqualTo(1);
+
+        jobsService.declareDone( initialJob, solverInfo );
+
+        List<String> jobsPending_after = jobsService.getPendingJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsPending_after).as("Jobs to do of size 6 after").contains("215N.200N.800E.PENDING");
+        assertThat(jobsPending_after.size()).as("Jobs pending of size 6 after").isEqualTo(1);
+
+        List<String> jobsDone_after = jobsService.getDoneJobs(6).stream()
+                .map( job -> nodeAdapter.fromJob(job).toString() ).collect(Collectors.toList());
+        assertThat(jobsDone_after).as("Jobs to do of size 6 after").contains("215N.200N.700E.DONE");
+        assertThat(jobsDone_after.size()).as("Jobs done of size 6 after").isEqualTo(1);
     }
 
 }

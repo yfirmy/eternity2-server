@@ -20,6 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
@@ -39,6 +40,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -56,7 +58,7 @@ public class Eternity2ServerIntegrationTest {
 
     private static final String API_ETERNITY2_GET_JOBS = API_ETERNITY2 + "/jobs";
 
-    private static final String API_ETERNITY2_PUT_RESULT = API_ETERNITY2 + "/result";
+    private static final String API_ETERNITY2_POST_RESULT = API_ETERNITY2 + "/result";
 
     private static final String API_ETERNITY2_GET_SOLUTIONS = API_ETERNITY2 + "/solutions";
 
@@ -344,7 +346,7 @@ public class Eternity2ServerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -387,7 +389,7 @@ public class Eternity2ServerIntegrationTest {
 
         // AND: submitting empty results for one job
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, " +
@@ -420,7 +422,7 @@ public class Eternity2ServerIntegrationTest {
 
         // AND : submitting empty results for the second job
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
                           "\"job\": \"$212W:.:400N:.:.:.:.:.:.:;\", "+
@@ -459,7 +461,7 @@ public class Eternity2ServerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -479,7 +481,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -499,7 +501,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -519,7 +521,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -539,7 +541,7 @@ public class Eternity2ServerIntegrationTest {
 
         this.setUpMock(0, 0,0, 0);
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content(""))
@@ -557,7 +559,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -576,7 +578,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -596,7 +598,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -615,7 +617,7 @@ public class Eternity2ServerIntegrationTest {
         this.setUpMock(0, 0,0, 0);
         String solverName = "mock-"+UUID.randomUUID().toString();
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+
@@ -643,7 +645,7 @@ public class Eternity2ServerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        mvc.perform(put(API_ETERNITY2_PUT_RESULT)
+        mvc.perform(post(API_ETERNITY2_POST_RESULT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("utf8")
                 .content("{\"solver\": {\"name\": \""+solverName+"\", \"version\": \"0.0.1\", \"machineType\": \"mock\", \"clusterName\": \"integration-test\", \"score\": \"10.1\"}, "+

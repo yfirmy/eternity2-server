@@ -50,7 +50,7 @@ public class HttpController {
                 .collect(Collectors.toList());
     }
 
-    @PutMapping(value = "/result")
+    @PostMapping(value = "/result")
     public void putResult(@RequestBody ResultDescription result, HttpServletRequest request) throws ResultSubmissionFailedException {
 
         if( result.getSolutions() != null ) {

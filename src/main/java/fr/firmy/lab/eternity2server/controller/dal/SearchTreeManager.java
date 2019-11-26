@@ -38,11 +38,22 @@ public class SearchTreeManager {
     private static final String removeNodeRequest =
             "DELETE FROM search.tree WHERE path = ?::ltree AND tag = ?::search.action";
 
-    private static final String updateNodeStatus =
-            "UPDATE search.tree SET tag = ?::search.action WHERE path = ?::ltree AND tag <> ?::search.action";
+    private static final String updateNodeStatus1 =
+            "UPDATE search.tree SET tag = '%s' WHERE path = ?::ltree AND tag = '%s'";
+
+    private static final String updateNodeStatus2 =
+            "UPDATE search.tree SET tag = '%s' WHERE path = ?::ltree AND (tag = '%s' OR tag = '%s')";
 
     private final JdbcTemplate jdbcTemplate;
     private final int boardSize;
+
+    private static Map<Action, String> updateNodeStatusRequests = new HashMap<>();
+
+    static {
+        updateNodeStatusRequests.put(Action.PENDING, String.format(updateNodeStatus1, Action.PENDING.name(), Action.GO.name()));
+        updateNodeStatusRequests.put(Action.DONE, String.format(updateNodeStatus2, Action.DONE.name(), Action.PENDING.name(), Action.DONE.name()));
+        updateNodeStatusRequests.put(Action.GO, String.format(updateNodeStatus1, Action.GO.name(), Action.PENDING.name()));
+    }
 
     @Autowired
     public SearchTreeManager(JdbcTemplate jdbcTemplate, ServerConfiguration configuration) {
@@ -133,7 +144,7 @@ public class SearchTreeManager {
         LOGGER.info("Setting tag "+newTag+ " to "+node.toString());
 
         try {
-            int count = jdbcTemplate.update(updateNodeStatus, newTag.name(), node.getPath().toString(), newTag.name());
+            int count = jdbcTemplate.update(updateNodeStatusRequests.get(newTag), node.getPath().toString());
             if( count == 0 ) {
                 ErrorDescription error = new ErrorDescription(BAD_REQUEST, node.getPath().toString(), "No Materialized Path's status have been updated");
                 throw new MaterializedPathUpdateFailedException(node.getPath(), error);
