@@ -36,12 +36,12 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   
  ## REST API
  
- | GET | PUT |  Path                              | Parameters          | Description                    |
- |-----|-----|------------------------------------|---------------------|--------------------------------|
- | X   |     | /api/eternity2-server/v1/jobs      | size, limit, offset | get the next jobs to solve     |
- |     |  X  | /api/eternity2-server/v1/result    | (JSON Body expected) | store a result                |
- | X   |     | /api/eternity2-server/v1/solutions | limit, offset | get the found solutions       |
- |     |  X  | /api/eternity2-server/v1/status    | (JSON Body expected) | set a PENDING status to a job |
+ | GET | PUT | POST | Path                               | Parameters          | Description                    |
+ |-----|-----|------|------------------------------------|---------------------|--------------------------------|
+ | X   |     |      | /api/eternity2-server/v1/jobs      | size, limit, offset | get the next jobs to solve     |
+ |     |     |   X  | /api/eternity2-server/v1/result    | (JSON Body expected) | store results                 |
+ | X   |     |      | /api/eternity2-server/v1/solutions | limit, offset | get the found solutions       |
+ |     |  X  |      | /api/eternity2-server/v1/status    | (JSON Body expected) | set a PENDING status to a job |
  
 
 
