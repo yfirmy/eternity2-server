@@ -119,6 +119,7 @@ public class SearchTreeManager {
         try {
             jdbcTemplate.update(insertNodeRequest, node.getPath().toString(), node.getTag().name());
         } catch(Exception e) {
+            LOGGER.error("Impossible to add Materialized Path " + node.getPath().toString());
             throw new MaterializedPathAddFailedException(node.getPath());
         }
     }
@@ -126,14 +127,16 @@ public class SearchTreeManager {
     @Transactional(propagation = Propagation.REQUIRED)
     public void removePath(Node node) throws MaterializedPathRemoveFailedException {
 
-        LOGGER.debug("Removing "+node.toString());
+        LOGGER.debug("Removing "+node.getPath().toString());
 
         try {
             int count = jdbcTemplate.update(removeNodeRequest, node.getPath().toString(), node.getTag().name());
             if( count == 0 ) {
+                LOGGER.error("Impossible to remove Materialized Path " + node.getPath().toString());
                 throw new MaterializedPathRemoveFailedException(node.getPath());
             }
         } catch(Exception e) {
+            LOGGER.error("Impossible to remove Materialized Path " + node.getPath().toString());
             throw new MaterializedPathRemoveFailedException(node.getPath());
         }
     }
@@ -141,18 +144,20 @@ public class SearchTreeManager {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateTag(Node node, Action newTag) throws MaterializedPathUpdateFailedException {
 
-        LOGGER.info("Setting tag "+newTag+ " to "+node.toString());
+        LOGGER.info("Setting tag "+newTag+ " to "+node.getPath().toString());
 
         try {
             int count = jdbcTemplate.update(updateNodeStatusRequests.get(newTag), node.getPath().toString());
             if( count == 0 ) {
-                ErrorDescription error = new ErrorDescription(BAD_REQUEST, node.getPath().toString(), "No Materialized Path's status have been updated");
+                ErrorDescription error = new ErrorDescription(BAD_REQUEST, node.getPath().toString(), String.format("Status cannot been updated for Materialized Path (%s)", node.getPath().toString()));
+                LOGGER.error(error.getMessage());
                 throw new MaterializedPathUpdateFailedException(node.getPath(), error);
             }
         } catch(MaterializedPathUpdateFailedException e) {
             throw e;
         } catch(Exception e) {
-            ErrorDescription error = new ErrorDescription(INTERNAL_SERVER_ERROR, node.getPath().toString(), "Impossible to update Materialized Path's status");
+            ErrorDescription error = new ErrorDescription(INTERNAL_SERVER_ERROR, node.getPath().toString(), String.format("Impossible to update status for Materialized Path (%s)", node.getPath().toString()));
+            LOGGER.error(error.getMessage());
             throw new MaterializedPathUpdateFailedException(node.getPath(), error, e);
         }
     }
@@ -223,7 +228,7 @@ public class SearchTreeManager {
     }
 
     private void addError(List<ErrorDescription> errors, HttpStatus httpStatus, String path, String cause) {
-        String errorMsg = "Impossible to replace the given Materialized Path, because "+cause;
+        String errorMsg = "Impossible to replace the given Materialized Path, because "+cause+ " ("+path+")";
         LOGGER.error(errorMsg);
         errors.add( new ErrorDescription(httpStatus, path, errorMsg) );
     }

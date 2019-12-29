@@ -2,29 +2,28 @@ package fr.firmy.lab.eternity2server.configuration;
 
 import javax.sql.DataSource;
 
-import fr.firmy.lab.eternity2server.controller.services.SubJobsServiceInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
 
 @Configuration
 public class ServerConfiguration {
 
-    @Autowired
     DataSource dataSource;
 
-    @Value("${solver.subjob.url}")
+    @Value("${solver.subjobs.url}")
     String subJobsRequest;
 
-    @Value("${solver.subjob.health.url}")
+    @Value("${solver.subjobs.health.url}")
     String subJobsHealthRequest;
 
     @Value("${board.size}")
     Integer boardSize;
+
+    @Autowired
+    public ServerConfiguration(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     DataSource getDataSource() {
         return this.dataSource;
@@ -54,12 +53,4 @@ public class ServerConfiguration {
         this.boardSize = boardSize;
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        restTemplate.setInterceptors(Collections.singletonList(new SubJobsServiceInterceptor()));
-
-        return restTemplate;
-    }
 }

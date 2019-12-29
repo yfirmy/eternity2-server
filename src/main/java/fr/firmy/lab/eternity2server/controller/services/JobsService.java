@@ -212,7 +212,7 @@ public class JobsService {
                 }
             }
         } else {
-            LOGGER.warn("The given job ("+materializedPath+") has no parent");
+            LOGGER.warn("The given job ("+materializedPath.toString()+") has no parent");
         }
     }
 
