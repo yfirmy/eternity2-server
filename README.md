@@ -6,13 +6,14 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   - by storing the intermediate results received from the solvers, based on the [Eternity II solver](https://github.com/yfirmy/eternity2-solver), then avoiding to explore again the same blocks;
   - by providing the next "chunks" of the challenge to the available solvers
 
-## The 5 main features
+## The 6 main features
 
  - Representing the huge search space as a tree-like structure
  - Dividing the search space into smaller size challenges for the solvers to explore, by creating branches in the tree
  - Providing the next "smaller sized" challenges to the available solvers
  - Storing de results received from the solvers 
  - Pruning the explored branches, to avoid a hyper massive tree in the database
+ - Sanity checking of the tree structure (consistency between branches and the solver "breadth-first search" results)
  
  ## Technical details
  
@@ -36,12 +37,13 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   
  ## REST API
  
- | GET | PUT | POST | Path                               | Parameters          | Description                    |
- |-----|-----|------|------------------------------------|---------------------|--------------------------------|
- | X   |     |      | /api/eternity2-server/v1/jobs      | size, limit, offset | get the next jobs to solve     |
- |     |     |   X  | /api/eternity2-server/v1/result    | (JSON Body expected) | store results                 |
- | X   |     |      | /api/eternity2-server/v1/solutions | limit, offset | get the found solutions       |
- |     |  X  |      | /api/eternity2-server/v1/status    | (JSON Body expected) | set a PENDING status to a job |
+ | GET | PUT | POST | Path                                 | Parameters           | Description                        |
+ |-----|-----|------|--------------------------------------|----------------------|------------------------------------|
+ | X   |     |      | /api/eternity2-server/v1/jobs        | size, limit, offset  | get the next jobs to solve         |
+ |     |     |   X  | /api/eternity2-server/v1/result      | (JSON Body expected) | store results                      |
+ | X   |     |      | /api/eternity2-server/v1/solutions   | limit, offset        | get the found solutions            |
+ |     |  X  |      | /api/eternity2-server/v1/status      | (JSON Body expected) | set a PENDING status to a job      |
+ | X   |     |      | /api/eternity2-server/v1/santy-check | (no parameter)       | performs an extensive sanity check |
  
 
 

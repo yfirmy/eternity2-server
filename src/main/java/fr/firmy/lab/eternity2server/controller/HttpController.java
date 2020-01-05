@@ -2,6 +2,7 @@ package fr.firmy.lab.eternity2server.controller;
 
 import fr.firmy.lab.eternity2server.controller.services.JobsService;
 import fr.firmy.lab.eternity2server.controller.dal.SolutionsRepository;
+import fr.firmy.lab.eternity2server.controller.services.SanityService;
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.Solution;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class HttpController {
 
     private final JobsService jobsService;
+    private final SanityService sanityService;
     private final SolutionsRepository solutionsRepository;
 
     // adapters
@@ -32,12 +34,13 @@ public class HttpController {
     private final SolverInfoAdapter solverInfoAdapter;
 
     @Autowired
-    public HttpController(JobsService jobsService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter) {
+    public HttpController(JobsService jobsService, SanityService sanityService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter) {
         this.jobsService = jobsService;
         this.solutionsRepository = solutionsRepository;
         this.solutionAdapter = solutionAdapter;
         this.jobAdapter = jobAdapter;
         this.solverInfoAdapter = solverInfoAdapter;
+        this.sanityService = sanityService;
     }
 
     @GetMapping(value = "/jobs")
@@ -141,5 +144,9 @@ public class HttpController {
         }
     }
 
+    @GetMapping(value="/sanity-check")
+    public void sanityCheck() throws TreeSanityCheckFailedException {
+        sanityService.check();
+    }
 
 }

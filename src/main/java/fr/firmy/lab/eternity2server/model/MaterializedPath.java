@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MaterializedPath {
+public class MaterializedPath implements Comparable<MaterializedPath> {
 
     private static Logger LOGGER = LoggerFactory.getLogger( MaterializedPath.class.getName() );
 
@@ -58,11 +58,14 @@ public class MaterializedPath {
     }
 
     public Optional<MaterializedPath> getParent() {
+        return getAncestor( this.segmentsCount() - 1 );
+    }
+
+    public Optional<MaterializedPath> getAncestor(int generation) {
         Optional<MaterializedPath> result = Optional.empty();
         if( this.segmentsCount() > 0 ) {
-            LinkedList<String> parentSegments = new LinkedList<>(this.getSegments());
-            parentSegments.removeLast();
-            result = Optional.of(new MaterializedPath(parentSegments));
+            LinkedList<String> segments = new LinkedList<>(this.getSegments().subList(0, generation));
+            result = Optional.of(new MaterializedPath(segments));
         }
         return result;
     }
@@ -72,4 +75,15 @@ public class MaterializedPath {
         return (other instanceof MaterializedPath) && this.segments.equals(((MaterializedPath)other).getSegments());
     }
 
+    @Override
+    public int compareTo(MaterializedPath other) {
+        int commonSegmentsCount = Math.min( this.segmentsCount(), other.segmentsCount() );
+        for( int i=0; i<commonSegmentsCount; i++ ) {
+            int compareSegment = this.getSegments().get(i).compareTo( other.getSegments().get(i) );
+            if( compareSegment != 0 ) {
+                return compareSegment;
+            }
+        }
+        return this.segmentsCount() - other.segmentsCount();
+    }
 }
