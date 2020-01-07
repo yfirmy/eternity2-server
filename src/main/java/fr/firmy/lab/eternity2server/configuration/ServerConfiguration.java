@@ -17,6 +17,15 @@ public class ServerConfiguration {
     @Value("${solver.subjobs.health.url}")
     String subJobsHealthRequest;
 
+    @Value("${influxdb.url}")
+    String influxDbUrl;
+
+    @Value("${influxdb.db-name}")
+    String influxDbName;
+
+    @Value("${influxdb.retention-policy}")
+    String influxDbRetentionPolicy;
+
     @Value("${board.size}")
     Integer boardSize;
 
@@ -43,6 +52,30 @@ public class ServerConfiguration {
 
     public void setSubJobsHealthRequest(String subJobsHealthRequest) {
         this.subJobsHealthRequest = subJobsHealthRequest;
+    }
+
+    public String getInfluxDbUrl() {
+        return influxDbUrl;
+    }
+
+    public void setInfluxDbUrl(String influxDbUrl) {
+        this.influxDbUrl = influxDbUrl;
+    }
+
+    public String getInfluxDbName() {
+        return influxDbName;
+    }
+
+    public void setInfluxDbName(String influxDbName) {
+        this.influxDbName = influxDbName;
+    }
+
+    public String getInfluxDbRetentionPolicy() {
+        return influxDbRetentionPolicy;
+    }
+
+    public void setInfluxDbRetentionPolicy(String influxDbRetentionPolicy) {
+        this.influxDbRetentionPolicy = influxDbRetentionPolicy;
     }
 
     public Integer getBoardSize() {

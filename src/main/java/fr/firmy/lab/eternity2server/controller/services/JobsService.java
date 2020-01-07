@@ -3,6 +3,7 @@ package fr.firmy.lab.eternity2server.controller.services;
 import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
 import fr.firmy.lab.eternity2server.controller.dal.SearchTreeManager;
 import fr.firmy.lab.eternity2server.controller.dal.WorkersRegistry;
+import fr.firmy.lab.eternity2server.controller.dal.WorkersTimeline;
 import fr.firmy.lab.eternity2server.model.*;
 import fr.firmy.lab.eternity2server.model.adapter.BoardAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
@@ -30,6 +31,7 @@ public class JobsService {
     private final SearchTreeManager searchTreeManager;
     private final SubJobsService subJobsService;
     private final WorkersRegistry workersRegistry;
+    private final WorkersTimeline timeline;
     private final int boardSize;
 
     // adapters
@@ -39,11 +41,12 @@ public class JobsService {
     private BoardAdapter boardAdapter;
 
     @Autowired
-    public JobsService(SearchTreeManager searchTreeManager, SubJobsService subJobsService, WorkersRegistry workersRegistry, ServerConfiguration configuration,
+    public JobsService(SearchTreeManager searchTreeManager, SubJobsService subJobsService, WorkersRegistry workersRegistry, WorkersTimeline timeline, ServerConfiguration configuration,
                        JobAdapter jobAdapter, NodeAdapter nodeAdapter, MaterializedPathAdapter materializedPathAdapter, BoardAdapter boardAdapter) {
         this.searchTreeManager = searchTreeManager;
         this.subJobsService = subJobsService;
         this.workersRegistry = workersRegistry;
+        this.timeline = timeline;
         this.boardSize = configuration.getBoardSize();
         this.jobAdapter = jobAdapter;
         this.nodeAdapter = nodeAdapter;
@@ -318,6 +321,8 @@ public class JobsService {
                 solverInfo.getClusterName(),
                 solverInfo.getScore()
         );
+
+        timeline.eventSolverSolving(solverInfo.getName());
     }
 
     private void unregisterSolver(Job job, SolverInfo solverInfo) throws UnregisteringFailedException {
@@ -326,6 +331,8 @@ public class JobsService {
                 nodeAdapter.fromJob(job),
                 solverInfo.getName()
         );
+
+        timeline.eventSolverIdle(solverInfo.getName());
     }
 
 
