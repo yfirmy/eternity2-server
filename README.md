@@ -37,13 +37,13 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   
  ## REST API
  
- | GET | PUT | POST | Path                                 | Parameters           | Description                        |
- |-----|-----|------|--------------------------------------|----------------------|------------------------------------|
- | X   |     |      | /api/eternity2-server/v1/jobs        | size, limit, offset  | get the next jobs to solve         |
- |     |     |   X  | /api/eternity2-server/v1/result      | (JSON Body expected) | store results                      |
- | X   |     |      | /api/eternity2-server/v1/solutions   | limit, offset        | get the found solutions            |
- |     |  X  |      | /api/eternity2-server/v1/status      | (JSON Body expected) | set a PENDING status to a job      |
- | X   |     |      | /api/eternity2-server/v1/santy-check | (no parameter)       | performs an extensive sanity check |
+ | GET | PUT | POST | Path                                 | Parameters           | Description                                  |
+ |-----|-----|------|--------------------------------------|----------------------|----------------------------------------------|
+ | X   |     |      | /api/eternity2-server/v1/jobs        | size, limit, offset  | get the next jobs to solve                   |
+ |     |     |   X  | /api/eternity2-server/v1/result      | (JSON Body expected) | store results                                |
+ | X   |     |      | /api/eternity2-server/v1/solutions   | limit, offset        | get the found solutions                      |
+ |     |  X  |      | /api/eternity2-server/v1/status      | (JSON Body expected) | set a PENDING/GO status to lock/unlock a job |
+ | X   |     |      | /api/eternity2-server/v1/santy-check | (no parameter)       | performs an extensive sanity check           |
  
 
 

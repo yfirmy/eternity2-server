@@ -128,7 +128,18 @@ public class HttpController {
         } else {
 
             if( status.getStatus().equalsIgnoreCase(Action.GO.name() ) ) {
-                error = Optional.of(new ErrorDescription(HttpStatus.FORBIDDEN, status.getJob().getJob().getRepresentation(), "Impossible to declare new Jobs to do"));
+
+                try {
+                    jobsService.giveUpPending(
+                            new Job(jobAdapter.fromDescription(status.getJob()), Action.PENDING),
+                            solverInfoAdapter.fromDescription(status.getSolverDescription(), request.getRemoteAddr())
+                    );
+                } catch(MalformedJobDescriptionException e) {
+                    error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "The given job is malformed in the request"));
+                } catch(MalformedSolverDescriptionException e) {
+                    error = Optional.of(new ErrorDescription(HttpStatus.BAD_REQUEST, status.getJob().getJob().getRepresentation(), "The given solver description is malformed in the request"));
+                }
+
             } else {
                 if (status.getStatus().equalsIgnoreCase(Action.DONE.name())) {
                     error = Optional.of(new ErrorDescription(HttpStatus.FORBIDDEN, status.getJob().getJob().getRepresentation(), "Please use the /result endpoint to declare finished jobs"));

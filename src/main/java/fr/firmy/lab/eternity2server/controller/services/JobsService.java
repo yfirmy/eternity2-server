@@ -15,6 +15,7 @@ import fr.firmy.lab.eternity2server.controller.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -292,6 +293,39 @@ public class JobsService {
         } catch (MaterializedPathUpdateFailedException | RegisteringFailedException e1) {
             throw new JobUpdateFailedException(e1.getError(), e1);
         }
+    }
+
+    /*
+     * Will reset a Job as "to do" and remove the solver from the current tasks
+     */
+    public void giveUpPending(Job job, SolverInfo solverInfo) throws JobUpdateFailedException {
+
+        try {
+            if( checkPendingJobOwner(job, solverInfo) ) {
+                this.updateJobStatus(job, Action.GO);
+                this.unregisterSolver(job, solverInfo);
+            } else {
+                throw new JobUpdateFailedException(
+                        new ErrorDescription(HttpStatus.BAD_REQUEST, "/status", "The given solver "+solverInfo.getName()+" is not registered with this job"));
+            }
+        } catch (MaterializedPathUpdateFailedException | UnregisteringFailedException e) {
+            throw new JobUpdateFailedException(e.getError(), e);
+        }
+    }
+
+    /*
+     * Verify Pending Job Owner
+     */
+    private boolean checkPendingJobOwner(Job job, SolverInfo solverInfo) {
+
+        List<Node> pendingJobs = workersRegistry.getPendingJobs(solverInfo.getName(),
+                                                                solverInfo.getIp().getHostAddress(),
+                                                                solverInfo.getVersion(),
+                                                                solverInfo.getMachineType(),
+                                                                solverInfo.getClusterName(),
+                                                                solverInfo.getScore() );
+
+        return pendingJobs.contains( nodeAdapter.fromJob(job) );
     }
 
     /*
