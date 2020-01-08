@@ -14,6 +14,7 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
  - Storing de results received from the solvers 
  - Pruning the explored branches, to avoid a hyper massive tree in the database
  - Sanity checking of the tree structure (consistency between branches and the solver "breadth-first search" results)
+ - Tracks the status of each Solver in a timeline
  
  ## Technical details
  
@@ -22,6 +23,7 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   
  ### Backend
   - PostGreSQL database, with LTREE extension
+  - InfluxDB
  
  ## How to build the project
  
@@ -31,7 +33,8 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
   
  The "Eternity II Server" requires  :
   - a HTTP access to the [Eternity II solver](https://github.com/yfirmy/eternity2-solver) REST API (in order to divide the search space into branches)
-  - a JDBC access to a PostGreSQL database
+  - a JDBC access to the PostGreSQL database
+  - a HTTP access to the InfluxDB timeseries database
   
  Note: the actual PostGreSQL database is also required for the non-regression Tests Suite.
   
@@ -40,9 +43,10 @@ The "Eternity II Server" is a hierarchical database service, dedicated to help s
  | GET | PUT | POST | Path                                 | Parameters           | Description                                  |
  |-----|-----|------|--------------------------------------|----------------------|----------------------------------------------|
  | X   |     |      | /api/eternity2-server/v1/jobs        | size, limit, offset  | get the next jobs to solve                   |
- |     |     |   X  | /api/eternity2-server/v1/result      | (JSON Body expected) | store results                                |
+ |     |     |   X  | /api/eternity2-server/v1/result      | (JSON Body expected) | store some results (for one job)             |
  | X   |     |      | /api/eternity2-server/v1/solutions   | limit, offset        | get the found solutions                      |
- |     |  X  |      | /api/eternity2-server/v1/status      | (JSON Body expected) | set a PENDING/GO status to lock/unlock a job |
+ |     |  X  |      | /api/eternity2-server/v1/status      | (JSON Body expected) | set a job status to acquire/release its lock |
+ |     |     |   X  | /api/eternity2-server/v1/event       | (JSON Body expected) | publish a solver's lifecycle event           |
  | X   |     |      | /api/eternity2-server/v1/santy-check | (no parameter)       | performs an extensive sanity check           |
  
 
