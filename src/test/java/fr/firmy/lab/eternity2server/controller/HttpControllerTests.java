@@ -222,7 +222,7 @@ public class HttpControllerTests {
         httpController.putStatus(status, servletRequest);
 
         // WHEN : we submit a result for this job
-        httpController.putResult(result, servletRequest);
+        httpController.postResult(result, servletRequest);
 
         // THEN : this result has been recorded
         List<String> solutions = getSolutions();
@@ -243,7 +243,7 @@ public class HttpControllerTests {
         httpController.putStatus(status, servletRequest);
 
         // WHEN : we submit a empty result for this job
-        httpController.putResult(result, servletRequest);
+        httpController.postResult(result, servletRequest);
 
         // THEN : nothing has changed, always the same result is recorded
         List<String> solutions = getSolutions();
@@ -263,7 +263,7 @@ public class HttpControllerTests {
         httpController.putStatus(status1, servletRequest);
 
         // WHEN : we submit a empty result for this job
-        httpController.putResult(result1, servletRequest);
+        httpController.postResult(result1, servletRequest);
 
         // THEN : no other result is recorded
         List<String> solutions = getSolutions();
@@ -295,7 +295,7 @@ public class HttpControllerTests {
         ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:203S:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
 
         httpController.putStatus(status1, servletRequest);
-        httpController.putResult(result1, servletRequest);
+        httpController.postResult(result1, servletRequest);
 
         List<String> solutions = getSolutions();
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -307,7 +307,7 @@ public class HttpControllerTests {
         assertThat(doneJobDescriptions8_1.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         httpController.putStatus(status2, servletRequest);
-        httpController.putResult(result2, servletRequest);
+        httpController.postResult(result2, servletRequest);
 
         List<String> doneJobDescriptions8_2 = getJobs(7);
         assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
@@ -327,7 +327,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -347,7 +347,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -366,7 +366,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -386,7 +386,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -406,7 +406,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -428,7 +428,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.putResult(result, servletRequest);
+            httpController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");

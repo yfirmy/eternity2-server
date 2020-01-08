@@ -1,11 +1,13 @@
 package fr.firmy.lab.eternity2server.controller;
 
+import fr.firmy.lab.eternity2server.controller.services.EventsService;
 import fr.firmy.lab.eternity2server.controller.services.JobsService;
 import fr.firmy.lab.eternity2server.controller.dal.SolutionsRepository;
 import fr.firmy.lab.eternity2server.controller.services.SanityService;
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.Job;
 import fr.firmy.lab.eternity2server.model.Solution;
+import fr.firmy.lab.eternity2server.model.adapter.EventAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.JobAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.SolutionAdapter;
 import fr.firmy.lab.eternity2server.model.adapter.SolverInfoAdapter;
@@ -27,19 +29,23 @@ public class HttpController {
     private final JobsService jobsService;
     private final SanityService sanityService;
     private final SolutionsRepository solutionsRepository;
+    private final EventsService eventsService;
 
     // adapters
     private final SolutionAdapter solutionAdapter;
     private final JobAdapter jobAdapter;
     private final SolverInfoAdapter solverInfoAdapter;
+    private final EventAdapter eventAdapter;
 
     @Autowired
-    public HttpController(JobsService jobsService, SanityService sanityService, SolutionsRepository solutionsRepository, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter) {
+    public HttpController(JobsService jobsService, SanityService sanityService, SolutionsRepository solutionsRepository, EventsService eventsService, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter, EventAdapter eventAdapter) {
         this.jobsService = jobsService;
         this.solutionsRepository = solutionsRepository;
+        this.eventsService = eventsService;
         this.solutionAdapter = solutionAdapter;
         this.jobAdapter = jobAdapter;
         this.solverInfoAdapter = solverInfoAdapter;
+        this.eventAdapter = eventAdapter;
         this.sanityService = sanityService;
     }
 
@@ -54,7 +60,7 @@ public class HttpController {
     }
 
     @PostMapping(value = "/result")
-    public void putResult(@RequestBody ResultDescription result, HttpServletRequest request) throws ResultSubmissionFailedException {
+    public void postResult(@RequestBody ResultDescription result, HttpServletRequest request) throws ResultSubmissionFailedException {
 
         if( result.getSolutions() != null ) {
 
@@ -158,6 +164,15 @@ public class HttpController {
     @GetMapping(value="/sanity-check")
     public void sanityCheck() throws TreeSanityCheckFailedException {
         sanityService.check();
+    }
+
+    @PostMapping(value="/event")
+    public void postEvent(@RequestBody EventDescription eventDescription) throws PostEventFailedException {
+        try {
+            eventsService.publishEvent( eventAdapter.fromDescription(eventDescription) );
+        } catch (MalformedEventDescriptionException e) {
+            throw new PostEventFailedException( new ErrorDescription(), e );
+        }
     }
 
 }

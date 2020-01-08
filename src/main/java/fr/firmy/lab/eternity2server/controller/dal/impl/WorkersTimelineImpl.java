@@ -40,13 +40,23 @@ public class WorkersTimelineImpl implements WorkersTimeline {
     }
 
     @Override
+    public void eventSolverRequesting(String solver_name) {
+        sendEvent(solver_name, Status.REQUESTING);
+    }
+
+    @Override
     public void eventSolverSolving(String solver_name) {
         sendEvent(solver_name, Status.SOLVING);
     }
 
     @Override
-    public void eventSolverIdle(String solver_name) {
-        sendEvent(solver_name, Status.IDLE);
+    public void eventSolverWaiting(String solver_name) {
+        sendEvent(solver_name, Status.WAITING);
+    }
+
+    @Override
+    public void eventSolverReporting(String solver_name) {
+        sendEvent(solver_name, Status.REPORTING);
     }
 
     @Override
@@ -57,8 +67,10 @@ public class WorkersTimelineImpl implements WorkersTimeline {
 
     private enum Status {
         STARTED,
-        IDLE,
+        REQUESTING,
+        WAITING,
         SOLVING,
+        REPORTING,
         STOPPED
     }
 }

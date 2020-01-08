@@ -211,6 +211,7 @@ public class JobsService {
                 if( !allSameSize ) {
                     LOGGER.debug("No pruning possible for " + materializedPath.toString() + ": siblings have not the same size");
                 } else {
+                    LOGGER.info("Reducing "+siblings.size()+" DONE sub-jobs to their common parent");
                     searchTreeManager.replacePath(siblings, Collections.singletonList(new Node(parent.get(), Action.DONE)));
                     this.pruneBranch( parent.get() );
                 }
@@ -238,11 +239,13 @@ public class JobsService {
                 if( subJobs.isEmpty() ) {
 
                     // No sub-job found: that means that the startingPoint job is DONE
+                    LOGGER.info("No sub-jobs were found for the job");
                     Job jobDone = new Job( startingPoint, Action.DONE );
                     searchTreeManager.replacePath(Collections.singletonList(nodeAdapter.fromJob(startingPoint)), Collections.singletonList(nodeAdapter.fromJob(jobDone)));
                     this.pruneJobs(jobDone);
 
                 } else {
+                    LOGGER.info("Expanding 1 job into "+subJobs.size()+" sub-jobs");
                     List<Node> toAdd = subJobs.stream().map( nodeAdapter::fromJob ).collect(Collectors.toList());
                     searchTreeManager.replacePath(Collections.singletonList(nodeAdapter.fromJob(startingPoint)), toAdd);
                 }
@@ -366,7 +369,7 @@ public class JobsService {
                 solverInfo.getName()
         );
 
-        timeline.eventSolverIdle(solverInfo.getName());
+        timeline.eventSolverWaiting(solverInfo.getName());
     }
 
 
