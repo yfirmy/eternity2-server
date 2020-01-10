@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/eternity2-server/v1")
-public class HttpController {
+public class HttpRestController {
 
     private final JobsService jobsService;
     private final SanityService sanityService;
@@ -38,7 +38,7 @@ public class HttpController {
     private final EventAdapter eventAdapter;
 
     @Autowired
-    public HttpController(JobsService jobsService, SanityService sanityService, SolutionsRepository solutionsRepository, EventsService eventsService, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter, EventAdapter eventAdapter) {
+    public HttpRestController(JobsService jobsService, SanityService sanityService, SolutionsRepository solutionsRepository, EventsService eventsService, SolutionAdapter solutionAdapter, JobAdapter jobAdapter, SolverInfoAdapter solverInfoAdapter, EventAdapter eventAdapter) {
         this.jobsService = jobsService;
         this.solutionsRepository = solutionsRepository;
         this.eventsService = eventsService;
@@ -174,5 +174,4 @@ public class HttpController {
             throw new PostEventFailedException( new ErrorDescription(), e );
         }
     }
-
 }

@@ -1,12 +1,8 @@
 package fr.firmy.lab.eternity2server.controller.services;
 
-import fr.firmy.lab.eternity2server.configuration.ServerConfiguration;
 import fr.firmy.lab.eternity2server.controller.dal.WorkersTimeline;
 import fr.firmy.lab.eternity2server.model.Event;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component

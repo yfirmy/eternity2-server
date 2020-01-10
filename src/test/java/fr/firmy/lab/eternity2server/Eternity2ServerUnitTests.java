@@ -21,7 +21,7 @@ import org.junit.runners.Suite;
         JobsServiceTests.class,
         SearchTreeManagerTests.class,
         SolutionsRepositoryTests.class,
-        HttpControllerTests.class
+        HttpRestControllerTests.class
 })
 public class Eternity2ServerUnitTests {
 }

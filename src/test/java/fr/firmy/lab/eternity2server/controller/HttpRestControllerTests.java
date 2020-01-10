@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class HttpControllerTests {
+public class HttpRestControllerTests {
 
     @Autowired
     DataSource dataSource;
@@ -36,7 +36,7 @@ public class HttpControllerTests {
     RestTemplate restTemplate;
 
     @Autowired
-    HttpController httpController;
+    HttpRestController httpRestController;
 
     @Autowired
     TestDataLoader testDataLoader;
@@ -57,12 +57,12 @@ public class HttpControllerTests {
     // Utils
 
     private List<String> getJobs(int size) throws JobSizeException, JobDevelopmentFailedException, JobRetrievalFailedException {
-        return httpController.getJobs(size, null, null)
+        return httpRestController.getJobs(size, null, null)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());
     }
 
     private List<String> getSolutions() {
-        return httpController.getSolutions(null, null)
+        return httpRestController.getSolutions(null, null)
                 .stream().map( SolutionDescription::getSolution ).map( BoardDescription::getRepresentation ).collect(Collectors.toList());
     }
 
@@ -70,12 +70,12 @@ public class HttpControllerTests {
 
     @Test( expected = JobSizeException.class )
     public void test_get_jobs_nojob() throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
-        List<JobDescription> jobs = httpController.getJobs(10, null, null);
+        List<JobDescription> jobs = httpRestController.getJobs(10, null, null);
     }
 
     @Test
     public void test_get_jobs_rootjob() throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
-        List<JobDescription> jobs = httpController.getJobs(9, null, null);
+        List<JobDescription> jobs = httpRestController.getJobs(9, null, null);
         assertThat(jobs.size()).as("Jobs to do of size 9").isEqualTo(0);
     }
 
@@ -94,7 +94,7 @@ public class HttpControllerTests {
     @Test
     public void test_get_jobs_existingjob_pagination_nominal_1() throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        List<String> jobs8 = httpController.getJobs(7, 1, 1)
+        List<String> jobs8 = httpRestController.getJobs(7, 1, 1)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
         assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
         assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
@@ -104,7 +104,7 @@ public class HttpControllerTests {
     @Test
     public void test_get_jobs_existingjob_pagination_nominal_2() throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        List<String> jobs8 = httpController.getJobs(7, 1, null)
+        List<String> jobs8 = httpRestController.getJobs(7, 1, null)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
         assertThat(jobs8).as("Description of found job to do of size 7").contains("$213S:.:201N:.:.:.:.:.:.:;");
         assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$215N:.:203S:.:.:.:.:.:.:;");
@@ -114,7 +114,7 @@ public class HttpControllerTests {
     @Test
     public void test_get_jobs_existingjob_pagination_nominal_3() throws JobDevelopmentFailedException, JobSizeException, JobRetrievalFailedException {
 
-        List<String> jobs8 = httpController.getJobs(7, null, 1)
+        List<String> jobs8 = httpRestController.getJobs(7, null, 1)
                 .stream().map( JobDescription::getJob).map( BoardDescription::getRepresentation ).collect(Collectors.toList());;
         assertThat(jobs8).as("Description of found job to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
         assertThat(jobs8).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
@@ -219,10 +219,10 @@ public class HttpControllerTests {
         ResultDescription result = testDataHelper.buildResultDescription( "$215N:203S:.:.:.:.:.:.:.:;", Collections.singletonList("$215N:203S:7E:6N:5W:4S:3E:2N:1W:;"), new Date(), new Date(), solver);
 
         // GIVEN : a locked job
-        httpController.putStatus(status, servletRequest);
+        httpRestController.putStatus(status, servletRequest);
 
         // WHEN : we submit a result for this job
-        httpController.postResult(result, servletRequest);
+        httpRestController.postResult(result, servletRequest);
 
         // THEN : this result has been recorded
         List<String> solutions = getSolutions();
@@ -240,10 +240,10 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         // GIVEN : a locked job
-        httpController.putStatus(status, servletRequest);
+        httpRestController.putStatus(status, servletRequest);
 
         // WHEN : we submit a empty result for this job
-        httpController.postResult(result, servletRequest);
+        httpRestController.postResult(result, servletRequest);
 
         // THEN : nothing has changed, always the same result is recorded
         List<String> solutions = getSolutions();
@@ -260,10 +260,10 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         // GIVEN : a locked job
-        httpController.putStatus(status1, servletRequest);
+        httpRestController.putStatus(status1, servletRequest);
 
         // WHEN : we submit a empty result for this job
-        httpController.postResult(result1, servletRequest);
+        httpRestController.postResult(result1, servletRequest);
 
         // THEN : no other result is recorded
         List<String> solutions = getSolutions();
@@ -294,8 +294,8 @@ public class HttpControllerTests {
         StatusDescription status2 = testDataHelper.buildStatusDescription("$215N:.:203S:.:.:.:.:.:.:;", Action.PENDING.name(), new Date(), new Date(), solver);
         ResultDescription result2 = testDataHelper.buildResultDescription("$215N:.:203S:.:.:.:.:.:.:;", new ArrayList<>(), new Date(), new Date(), solver);
 
-        httpController.putStatus(status1, servletRequest);
-        httpController.postResult(result1, servletRequest);
+        httpRestController.putStatus(status1, servletRequest);
+        httpRestController.postResult(result1, servletRequest);
 
         List<String> solutions = getSolutions();
         assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -306,8 +306,8 @@ public class HttpControllerTests {
         assertThat(doneJobDescriptions8_1).as("Description of found getJobs to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(doneJobDescriptions8_1.size()).as("Jobs to do of size 7").isEqualTo(1);
 
-        httpController.putStatus(status2, servletRequest);
-        httpController.postResult(result2, servletRequest);
+        httpRestController.putStatus(status2, servletRequest);
+        httpRestController.postResult(result2, servletRequest);
 
         List<String> doneJobDescriptions8_2 = getJobs(7);
         assertThat(doneJobDescriptions8_2).as("Description of found getJobs to do of size 7").doesNotContain("$213S:.:201N:.:.:.:.:.:.:;");
@@ -327,7 +327,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -347,7 +347,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch(Exception e) {
 
             List<String> solutions = getSolutions();
@@ -366,7 +366,7 @@ public class HttpControllerTests {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -386,7 +386,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -406,7 +406,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -428,7 +428,7 @@ public class HttpControllerTests {
         //httpController.putStatus(status, servletRequest);
 
         try {
-            httpController.postResult(result, servletRequest);
+            httpRestController.postResult(result, servletRequest);
         } catch( Exception e ) {
             List<String> solutions = getSolutions();
             assertThat(solutions).as("Solutions found").contains("$1N:5N:2W:8E:9N:6W:3S:7S:4E:;");
@@ -457,7 +457,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
-        httpController.putStatus(status, servletRequest);
+        httpRestController.putStatus(status, servletRequest);
 
         List<String> jobs9_after = getJobs(8);
         assertThat(jobs9_after).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -486,7 +486,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before).as("Description of found job to do of size 7").contains("$215N:.:203S:.:.:.:.:.:.:;");
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
-        httpController.putStatus(status, servletRequest);
+        httpRestController.putStatus(status, servletRequest);
 
         List<String> jobs9_after = getJobs(8);
         assertThat(jobs9_after).as("Description of found job to do of size 8").contains("$212W:.:.:.:.:.:.:.:.:;");
@@ -498,7 +498,7 @@ public class HttpControllerTests {
         assertThat(jobs8_after.size()).as("Jobs to do of size 7").isEqualTo(1);
 
         try {
-            httpController.putStatus(status, servletRequest);
+            httpRestController.putStatus(status, servletRequest);
         } catch( Exception e ) {
             throw e;
         }
@@ -522,7 +522,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status, servletRequest);
+            httpRestController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -556,7 +556,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status, servletRequest);
+            httpRestController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -589,7 +589,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status, servletRequest);
+            httpRestController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
@@ -622,7 +622,7 @@ public class HttpControllerTests {
         assertThat(jobs8_before.size()).as("Jobs to do of size 7").isEqualTo(2);
 
         try {
-            httpController.putStatus(status, servletRequest);
+            httpRestController.putStatus(status, servletRequest);
         } catch( Exception e ) {
 
             List<String> jobs9_after = getJobs(8);
