@@ -5,6 +5,8 @@ import fr.firmy.lab.eternity2server.controller.exception.MalformedMaterializedPa
 import fr.firmy.lab.eternity2server.model.Action;
 import fr.firmy.lab.eternity2server.model.MaterializedPath;
 import fr.firmy.lab.eternity2server.model.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,8 @@ import static fr.firmy.lab.eternity2server.model.Action.PENDING;
 @Component
 public class GraphService {
 
+    private static Logger LOGGER = LoggerFactory.getLogger( GraphService.class );
+
     private SearchTreeManager searchTreeManager;
 
     @Autowired
@@ -30,7 +34,11 @@ public class GraphService {
     public String createMermaidDiagram() {
 
         Tree inMemory = new Tree();
-        inMemory.load( searchTreeManager.getAllPaths() );
+        List<Node> paths = searchTreeManager.getAllPaths();
+        inMemory.load( paths );
+
+        LOGGER.info("Database LTREE contains "+ paths.size() + " lines" );
+        LOGGER.info("Drawn Tree Diagram contains "+ inMemory.index.size() + " nodes" );
 
         StringBuilder output = new StringBuilder();
         append("graph TD\n", output);
@@ -62,7 +70,6 @@ public class GraphService {
     }
 
     private void append(String line, StringBuilder output) {
-        System.out.print(line);
         output.append(line);
     }
 
